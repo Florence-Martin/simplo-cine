@@ -43,8 +43,7 @@ jobs:
               git clone --branch develop https://github.com/Florence-Martin/simplo-cine ~/devops/simplo-cine
             else
               cd ~/devops/simplo-cine
-               git fetch origin develop
-               git reset --hard origin/develop  
+               git pull origin develop  
             fi
 
   build-and-run-on-vps:
