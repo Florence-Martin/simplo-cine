@@ -236,7 +236,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-6 flex flex-col items-center">
+    <div className="min-h-screen p-6 flex flex-col items-center bg-gray-100">
       <h1 className="text-3xl font-bold mb-6 text-gray-900">
         Gestion des Films et des Salles
       </h1>
