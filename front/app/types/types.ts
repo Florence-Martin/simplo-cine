@@ -36,6 +36,8 @@ export interface ScreeningAttributes extends BaseAttributes {
   date: Date;
   startTime: string;
   duration: number;
+  endTime: string;
+  spectatorsCount: number;
 }
 
 // Si l'interface Screening est la même que ScreeningAttributes, vous pouvez simplement faire :
