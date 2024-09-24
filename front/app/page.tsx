@@ -275,7 +275,7 @@ export default function Home() {
       {/* {error !== "null" && <Message severity="error" text={`Error: ${error}`} />} */}
 
       {/* Section de recherche par date */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mb-10">
         <h2 className="text-2xl font-bold text-center mt-5 mb-10">Recherchez une séance par date pour voir les films disponibles</h2>
         <div className="flex justify-center w-full">
           <div className="w-full max-w-2xl flex items-center justify-between space-x-4">
@@ -331,8 +331,8 @@ export default function Home() {
         </div>
       )}
       <hr className="border-t-2 border-gray-300 my-1 w-full" />
-      <div className="bg-gray-500 py-4">
-        <h2 className="text-2xl font-bold text-center text-white">À la Une</h2>
+      <div className="bg-gray-800 py-4">
+        <h2 className="text-2xl font-bold text-center text-white">À LA UNE</h2>
       </div>
       <hr className="border-t-2 border-gray-300 my-1 w-full" />
       <hr className="border-t-2 border-gray-300 mt-4 mb-8 w-full" />
@@ -348,8 +348,8 @@ export default function Home() {
       </div>
 
       <hr className="border-t-2 border-gray-300 mb-1 mt-20 w-full" />
-      <div className="bg-gray-500 py-4">
-        <h2 className="text-2xl font-bold text-center text-white">Catégories</h2>
+      <div className="bg-gray-800 py-4">
+        <h2 className="text-2xl font-bold text-center text-white">CATÉGORIES</h2>
       </div>
       <hr className="border-t-2 border-gray-300 my-1 w-full" />
       <hr className="border-t-2 border-gray-300 mt-4 mb-8 w-full" />
