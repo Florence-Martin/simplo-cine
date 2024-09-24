@@ -118,7 +118,7 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <>
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-start items-start">
         <div className="max-w-sm rounded overflow-hidden shadow-lg">
           <MovieImage
             className="w-auto h-60 object-cover"

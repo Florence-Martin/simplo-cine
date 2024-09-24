@@ -25,6 +25,60 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [userRole] = useState<string | null>(null);
 
+  // const [moviesTest, setMoviesTest] = useState<Movie[]>([]);
+
+  // const generateMovies = (): Movie[] => {
+  //   const titles = [
+  //     "Movie 1",
+  //     "Movie 2",
+  //     "Movie 3",
+  //     "Movie 4",
+  //     "Movie 5",
+  //     "Movie 6",
+  //     "Movie 7",
+  //     "Movie 8",
+  //     "Movie 9",
+  //     "Movie 10",
+  //     "Movie 11",
+  //     "Movie 12",
+  //   ];
+
+  //   const descriptions = [
+  //     "Description for Movie 1",
+  //     "Description for Movie 2",
+  //     "Description for Movie 3",
+  //     "Description for Movie 4",
+  //     "Description for Movie 5",
+  //     "Description for Movie 6",
+  //     "Description for Movie 7",
+  //     "Description for Movie 8",
+  //     "Description for Movie 9",
+  //     "Description for Movie 10",
+  //     "Description for Movie 11",
+  //     "Description for Movie 12",
+  //   ];
+
+  //   const generateReleaseDate = (): string => {
+  //     const today = new Date();
+  //     const randomDays = Math.random() < 0.5 ? Math.floor(Math.random() * 2) + 1 : Math.floor(Math.random() * 10) + 11;
+  //     const releaseDate = new Date(today);
+  //     releaseDate.setDate(today.getDate() + randomDays);
+  //     return releaseDate.toISOString().split("T")[0];
+  //   };
+
+  //   return titles.map((title, index) => ({
+  //     id: index + 1,
+  //     title,
+  //     description: descriptions[index],
+  //     release_date: generateReleaseDate(),
+  //     duration: Math.floor(Math.random() * 120) + 60, // Random duration between 60 and 180 minutes
+  //   }));
+  // };
+
+  // useEffect(() => {
+  //   setMoviesTest(generateMovies());
+  // }, []);
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -276,8 +330,12 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      <h2 className="text-2xl font-bold text-center mb-5 mt-36">À la Une</h2>
+      <hr className="border-t-2 border-gray-300 my-1 w-full" />
+      <div className="bg-gray-500 py-4">
+        <h2 className="text-2xl font-bold text-center text-white">À la Une</h2>
+      </div>
+      <hr className="border-t-2 border-gray-300 my-1 w-full" />
+      <hr className="border-t-2 border-gray-300 mt-4 mb-8 w-full" />
 
       <div className="card mx-8">
         <Carousel
@@ -289,8 +347,13 @@ export default function Home() {
         />
       </div>
 
-      <h2 className="text-2xl font-bold text-center mb-20 mt-10">Catégories</h2>
-      <div className="flex justify-center gap-8 flex-wrap">
+      <hr className="border-t-2 border-gray-300 mb-1 mt-20 w-full" />
+      <div className="bg-gray-500 py-4">
+        <h2 className="text-2xl font-bold text-center text-white">Catégories</h2>
+      </div>
+      <hr className="border-t-2 border-gray-300 my-1 w-full" />
+      <hr className="border-t-2 border-gray-300 mt-4 mb-8 w-full" />
+      <div className="flex justify-center gap-8 flex-wrap mb-20">
         {["Romance", "Comédie", "Horreur", "Science-fiction"].map((type) => {
           const filteredMovies = movies.filter(
             (movie) => assignRandomType(movie.id) === type
@@ -305,7 +368,7 @@ export default function Home() {
                   numScroll={1}
                   orientation="vertical"
                   itemTemplate={moviesTemplate}
-                  verticalViewPortHeight="550px"
+                  verticalViewPortHeight="420px"
                 />
               </div>
             </div>
