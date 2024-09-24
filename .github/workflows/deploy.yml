@@ -80,6 +80,17 @@ jobs:
                 fi
               fi
             done
+
+             # Commit and push the .tar files
+            cd ~/devops/simplo-cine/version
+            if [ "$(ls *.tar 2>/dev/null)" ]; then
+              git add *.tar
+              git commit -m "Add Docker images version ${VERSION}"
+              git push origin develop
+            else
+              echo "No .tar files to commit."
+            fi
+
             
 
       - name: Start Docker Containers
