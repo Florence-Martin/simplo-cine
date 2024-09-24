@@ -1,16 +1,6 @@
 version: '3.8'
 
 services:
-  # Service Nginx
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./api/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - simplo-cine-network
-
   # Service Frontend (Next.js)
   front:
     build: ./front
@@ -229,6 +219,17 @@ services:
       - "3010:3000"
     networks:
       - simplo-cine-network
+
+   # Service Nginx
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./api/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - simplo-cine-network
+    restart: always
 
 volumes:
   postgres_data_movie:
