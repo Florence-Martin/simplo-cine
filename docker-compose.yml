@@ -16,6 +16,7 @@ services:
   # Service Frontend (Next.js)
   front:
     build: ./front
+    image: front:$(cat ./version/version.txt)
     ports:
       - "3000:3000"
     volumes:
@@ -31,6 +32,7 @@ services:
   # Service de gestion des films
   movies-service:
     build: ./micro-services/movies-service
+    image: movies-service:$(cat ./version/version.txt)
     ports:
       - "3001:3000"
     depends_on:
@@ -64,6 +66,7 @@ services:
   # Service de notifications
   notifications-service:
     build: ./micro-services/notifications-service
+    image: notifications-service:$(cat ./version/version.txt)
     ports:
       - "3003:3000"
     environment:
@@ -80,6 +83,7 @@ services:
   # Service de gestion des salles
   rooms-service:
     build: ./micro-services/rooms-service
+    image: rooms-service:$(cat ./version/version.txt)
     ports:
       - "3004:3000"
     depends_on:
@@ -113,6 +117,7 @@ services:
   # Service de recherche
   search-service:
     build: ./micro-services/search-service
+    image: search-service:$(cat ./version/version.txt)
     ports:
       - "3005:3000"
     depends_on:
@@ -146,6 +151,7 @@ services:
   # Service de gestion des sessions
   sessions-service:
     build: ./micro-services/sessions-service
+    image: sessions-service:$(cat ./version/version.txt)
     ports:
       - "3006:3000"
     depends_on:
@@ -179,6 +185,7 @@ services:
   # Service de gestion des utilisateurs
   users-service:
     build: ./micro-services/users-service
+    image: users-service:$(cat ./version/version.txt)
     ports:
       - "3007:3000"
     depends_on:
