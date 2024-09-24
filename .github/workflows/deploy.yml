@@ -61,40 +61,16 @@ jobs:
           script: |
             cd ~/devops/simplo-cine
             
-            # Lire la version depuis le fichier version.txt
+            # Build Docker images and tag them with the version
             VERSION=$(cat ./version/version.txt)
-            
-            # Construire et taguer les images Docker
             sudo docker-compose build
-            sudo docker tag movies-service movies-service:$VERSION
-            sudo docker tag notifications-service notifications-service:$VERSION
-            sudo docker tag rooms-service rooms-service:$VERSION
-            sudo docker tag search-service search-service:$VERSION
-            sudo docker tag sessions-service sessions-service:$VERSION
-            sudo docker tag users-service users-service:$VERSION
 
-            # Sauvegarder les images Docker dans le répertoire version/
+            # Save images with the version tag
             mkdir -p ~/devops/simplo-cine/version
-            sudo docker save -o ~/devops/simplo-cine/version/movies-service_$VERSION.tar movies-service:$VERSION
-            sudo docker save -o ~/devops/simplo-cine/version/notifications-service_$VERSION.tar notifications-service:$VERSION
-            sudo docker save -o ~/devops/simplo-cine/version/rooms-service_$VERSION.tar rooms-service:$VERSION
-            sudo docker save -o ~/devops/simplo-cine/version/search-service_$VERSION.tar search-service:$VERSION
-            sudo docker save -o ~/devops/simplo-cine/version/sessions-service_$VERSION.tar sessions-service:$VERSION
-            sudo docker save -o ~/devops/simplo-cine/version/users-service_$VERSION.tar users-service:$VERSION
-            sudo docker tag front front:$VERSION
-            sudo docker tag nginx nginx:$VERSION
-            sudo docker tag prometheus prometheus:$VERSION
-            sudo docker tag grafana grafana:$VERSION
-
-            # Copie des fichiers versionnés dans le dépôt
-            cp ~/devops/simplo-cine/version/*.tar ~/devops/simplo-cine/version/
-
-            # Engager et pousser les changements vers le dépôt
-            git config --global user.email "pro.legrand.thomas@gmail.com"
-            git config --global user.name "Legrand Thomas"
-            git add version/*.tar
-            git commit -m "[skip ci] Ajout des images versionnées pour la version $VERSION"
-            git push origin develop
+            for service in movies-service notifications-service rooms-service search-service sessions-service users-service front nginx prometheus grafana; do
+              sudo docker save -o ~/devops/simplo-cine/version/${service}_${VERSION}.tar ${service}:${VERSION}
+            done
+            
 
       - name: Start Docker Containers
         uses: appleboy/ssh-action@v0.1.8
