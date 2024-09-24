@@ -1,5 +1,5 @@
 # Utiliser l'image Node.js
-FROM node:18
+FROM node:18-alpine
 
 # Créer le répertoire de l'application
 WORKDIR /usr/src/app

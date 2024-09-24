@@ -32,7 +32,7 @@ jobs:
             if [ -n "$containers" ]; then
               sudo docker rm $containers
               # Supprime le network custom
-              sudo docker network rm simplo-cine_simplo-cine-network
+              sudo docker network rm simplo-cine_simplo-cine-network || true
             fi
 
             # Vérifier si le répertoire existe, sinon le cloner
@@ -58,10 +58,33 @@ jobs:
           password: "cdadevops2024"
           port: 9049
           script: |
+            script: |
             cd ~/devops/simplo-cine
-            sudo docker network rm simplo-cine_simplo-cine-network
-            sudo docker-compose down
+            
+            # Lire la version depuis le fichier version.txt
+            VERSION=$(cat ./version/version.txt)
+            
+            # Construire et taguer les images Docker
             sudo docker-compose build --parallel
+            sudo docker tag movies-service movies-service:$VERSION
+            sudo docker tag notifications-service notifications-service:$VERSION
+            sudo docker tag rooms-service rooms-service:$VERSION
+            sudo docker tag search-service search-service:$VERSION
+            sudo docker tag sessions-service sessions-service:$VERSION
+            sudo docker tag users-service users-service:$VERSION
+
+            # Sauvegarder les images Docker dans le répertoire version/
+            mkdir -p ~/devops/simplo-cine/version
+            sudo docker save -o ~/devops/simplo-cine/version/movies-service_$VERSION.tar movies-service:$VERSION
+            sudo docker save -o ~/devops/simplo-cine/version/notifications-service_$VERSION.tar notifications-service:$VERSION
+            sudo docker save -o ~/devops/simplo-cine/version/rooms-service_$VERSION.tar rooms-service:$VERSION
+            sudo docker save -o ~/devops/simplo-cine/version/search-service_$VERSION.tar search-service:$VERSION
+            sudo docker save -o ~/devops/simplo-cine/version/sessions-service_$VERSION.tar sessions-service:$VERSION
+            sudo docker save -o ~/devops/simplo-cine/version/users-service_$VERSION.tar users-service:$VERSION
+            sudo docker tag front front:$VERSION
+            sudo docker tag nginx nginx:$VERSION
+            sudo docker tag prometheus prometheus:$VERSION
+            sudo docker tag grafana grafana:$VERSION
 
       - name: Start Docker Containers
         uses: appleboy/ssh-action@v0.1.8
@@ -72,5 +95,5 @@ jobs:
           port: 9049
           script: |
             cd ~/devops/simplo-cine
-            sudo docker network rm simplo-cine_simplo-cine-network
+            sudo docker network rm simplo-cine_simplo-cine-network || true
             sudo docker-compose up -d
