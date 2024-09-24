@@ -63,7 +63,7 @@ jobs:
             
             # Build Docker images and tag them with the version
             VERSION=$(cat ./version/version.txt)
-            echo "VERSION"
+            echo "VERSION: $VERSION"
             sudo docker-compose build
 
             # Save images with the version tag
