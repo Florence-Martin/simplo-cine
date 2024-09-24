@@ -60,4 +60,22 @@ router.post("/register", authController.register);
 router.post("/signin", authController.login);
 router.get("/verifyToken", authController.verifyToken);
 
+/**
+ * @swagger
+ * /auth/verifyToken:
+ *   post:
+ *     summary: Verifie le token utilisateur
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *     responses:
+ *       200:
+ *         description: Verifie les acces utilisateur
+ *       401:
+ *         description: Role Insufissant
+ */
+router.get("/verifyToken", authController.verifyToken);
+
 export default router;
