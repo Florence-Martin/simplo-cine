@@ -8,8 +8,10 @@ services:
       - "8080:8080"
     volumes:
       - ./api/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./monitoring/nginx/nginx-prometheus-exporter.conf:/etc/nginx/nginx-prometheus-exporter.conf:ro
     networks:
       - simplo-cine-network
+    command: ["nginx", "-c", "/etc/nginx/nginx-prometheus-exporter.conf"]
 
   # Service Frontend (Next.js)
   front:
