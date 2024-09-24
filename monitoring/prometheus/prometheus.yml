@@ -37,9 +37,3 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: ['simplo-cine_users-service_1:3000']
-
-  # Job pour Nginx
-  - job_name: 'metrics_nginx'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['simplo-cine_nginx_1:8080']
