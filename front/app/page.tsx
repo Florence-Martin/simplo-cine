@@ -221,10 +221,8 @@ export default function Home() {
       {/* {error !== "null" && <Message severity="error" text={`Error: ${error}`} />} */}
 
       {/* Section de recherche par date */}
-      <div className="flex flex-col items-center mb-5">
-        <h2 className="text-2xl font-bold text-center mt-5 mb-10">
-          Recherchez une séance par date pour voir les films disponibles
-        </h2>
+      <div className="flex flex-col items-center">
+        <h2 className="text-2xl font-bold text-center mt-5 mb-10">Recherchez une séance par date pour voir les films disponibles</h2>
         <div className="flex justify-center w-full">
           <div className="w-full max-w-2xl flex items-center justify-between space-x-4">
             <div className="w-1/2 flex flex-col items-start space-y-4">
@@ -256,43 +254,30 @@ export default function Home() {
       {error ? (
         <h2 className="text-2xl font-bold text-center mt-5 mb-10">{error}</h2>
       ) : movies.length === 0 ? (
-        <h2 className="text-2xl font-bold text-center mt-5 mb-10">
-          Aucun film trouvé pour cette date.
-        </h2>
-      ) : (
-        selectedDate && (
-          <div>
-            <h2 className="text-2xl font-bold text-center mt-5 mb-10">
-              Film du{" "}
-              {selectedDate
-                ? new Date(selectedDate).toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })
-                : ""}
-            </h2>
-            <div className="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-              {moviesWithDate.map((movie) => (
-                <Card
-                  key={movie.id}
-                  id={movie.id}
-                  title={movie.title}
-                  description={movie.description || "No description available"}
-                  type={assignRandomType(movie.id)}
-                  release_date={movie.release_date}
-                  duration={movie.duration}
-                  created_at={new Date().toISOString()}
-                  updated_at={new Date().toISOString()}
-                  isAdmin={isAdmin}
-                />
-              ))}
-            </div>
+        <h2 className="text-2xl font-bold text-center mt-5 mb-10">Aucun film trouvé pour cette date.</h2>
+      ) : selectedDate && (
+        <div>
+          <h2 className="text-2xl font-bold text-center mt-5">Film du {selectedDate ? new Date(selectedDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</h2>
+          <div className="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+            {moviesWithDate.map((movie) => (
+              <Card
+                key={movie.id}
+                id={movie.id}
+                title={movie.title}
+                description={movie.description || 'No description available'}
+                type={assignRandomType(movie.id)}
+                release_date={movie.release_date}
+                duration={movie.duration}
+                created_at={new Date().toISOString()}
+                updated_at={new Date().toISOString()}
+                isAdmin={isAdmin}
+              />
+            ))}
           </div>
-        )
+        </div>
       )}
 
-      <h2 className="text-2xl font-bold text-center mb-20 mt-36">À la Une</h2>
+      <h2 className="text-2xl font-bold text-center mb-5 mt-36">À la Une</h2>
 
       <div className="card mx-8">
         <Carousel
@@ -304,17 +289,14 @@ export default function Home() {
         />
       </div>
 
-      <h2 className="text-2xl font-bold text-center mb-20 mt-36">Catégories</h2>
+      <h2 className="text-2xl font-bold text-center mb-20 mt-10">Catégories</h2>
       <div className="flex justify-center gap-8 flex-wrap">
         {["Romance", "Comédie", "Horreur", "Science-fiction"].map((type) => {
           const filteredMovies = movies.filter(
             (movie) => assignRandomType(movie.id) === type
           );
           return (
-            <div
-              key={type}
-              className="flex flex-col items-center mb-8 w-1/5 min-w-[100px]"
-            >
+            <div key={type} className="flex flex-col items-center w-1/5 min-w-[100px]">
               <h2 className="text-2xl font-bold text-center my-4">{type}</h2>
               <div className="card flex justify-content-center">
                 <Carousel
