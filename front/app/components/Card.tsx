@@ -150,28 +150,28 @@ const Card: React.FC<CardProps> = ({
               </>
             )}
 
-            {!iconDisabled && (
-              <div className="flex flex-wrap">
-                <div className="w-1/2">
-                  <h4 className="text-gray-700 text-base font-semibold mb-2">
-                    Date de sortie
-                  </h4>
-                  <p className="text-gray-700 text-base">
-                    {release_date
-                      ? new Date(release_date).toLocaleDateString()
-                      : "Date non disponible"}
-                  </p>
-                </div>
-                <div className="w-1/2">
-                  <h4 className="text-gray-700 text-base font-semibold mb-2">
-                    Durée
-                  </h4>
-                  {duration !== undefined && (
-                    <p className="text-gray-700 text-base">{duration} min</p>
-                  )}
-                </div>
+
+            <div className="flex flex-wrap">
+              <div className="w-1/2">
+                <h4 className="text-gray-700 text-base font-semibold mb-2">
+                  Date de sortie
+                </h4>
+                <p className="text-gray-700 text-base">
+                  {release_date
+                    ? new Date(release_date).toLocaleDateString()
+                    : "Date non disponible"}
+                </p>
               </div>
-            )}
+              <div className="w-1/2">
+                <h4 className="text-gray-700 text-base font-semibold mb-2">
+                  Durée
+                </h4>
+                {duration !== undefined && (
+                  <p className="text-gray-700 text-base">{duration} min</p>
+                )}
+              </div>
+            </div>
+
 
             {isAdmin() && (
               <>
