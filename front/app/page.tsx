@@ -1,5 +1,6 @@
 "use client";
 
+import Cookies from 'js-cookie';
 import { Carousel, CarouselResponsiveOption } from "primereact/carousel";
 import { ProgressSpinner } from "primereact/progressspinner";
 import * as React from "react";
@@ -24,6 +25,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userRole] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      console.log('Token:', token);
+    } else {
+      console.log('No token found in cookies');
+    }
+  }, []);
 
   // const [moviesTest, setMoviesTest] = useState<Movie[]>([]);
 
@@ -152,6 +163,7 @@ export default function Home() {
   //     }
   //   }
   // };
+
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const handleDateInputChange = async () => {
@@ -330,12 +342,12 @@ export default function Home() {
           </div>
         </div>
       )}
-      <hr className="border-t-2 border-gray-300 my-1 w-full" />
+      <hr className="border-t-2 border-gray-800 my-1 w-full" />
       <div className="bg-gray-800 py-4">
         <h2 className="text-2xl font-bold text-center text-white">À LA UNE</h2>
       </div>
-      <hr className="border-t-2 border-gray-300 my-1 w-full" />
-      <hr className="border-t-2 border-gray-300 mt-4 mb-8 w-full" />
+      <hr className="border-t-2 border-gray-800 my-1 w-full" />
+      <hr className="border-t-2 border-gray-800 mt-4 mb-8 w-full" />
 
       <div className="card mx-8">
         <Carousel
@@ -347,12 +359,12 @@ export default function Home() {
         />
       </div>
 
-      <hr className="border-t-2 border-gray-300 mb-1 mt-20 w-full" />
+      <hr className="border-t-2 border-gray-800 mb-1 mt-20 w-full" />
       <div className="bg-gray-800 py-4">
         <h2 className="text-2xl font-bold text-center text-white">CATÉGORIES</h2>
       </div>
-      <hr className="border-t-2 border-gray-300 my-1 w-full" />
-      <hr className="border-t-2 border-gray-300 mt-4 mb-8 w-full" />
+      <hr className="border-t-2 border-gray-800 my-1 w-full" />
+      <hr className="border-t-2 border-gray-800 mt-4 mb-8 w-full" />
       <div className="flex justify-center gap-8 flex-wrap mb-20">
         {["Romance", "Comédie", "Horreur", "Science-fiction"].map((type) => {
           const filteredMovies = movies.filter(

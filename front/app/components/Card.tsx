@@ -172,6 +172,12 @@ const Card: React.FC<CardProps> = ({
               </div>
             </div>
 
+            <div className="icons text-gray-700 flex justify-end space-x-2 p-2">
+              <span className="flex bg-gray-200 rounded-l-full rounded-r-none px-3 py-1 text-sm font-semibold text-gray-700">
+                # {type}
+              </span>
+            </div>
+
             {isAdmin() && (
               <>
                 <p className="text-gray-700 text-base">
@@ -259,9 +265,6 @@ const Card: React.FC<CardProps> = ({
                         # {type}
                       </span>
                     </div>
-                  </div>
-                  <div className="relative mt-6 flex-1 px-4 sm:px-6">
-                    {/* Your content */}
                   </div>
                 </div>
               </DialogPanel>
