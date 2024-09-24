@@ -1,7 +1,6 @@
 "use client";
 
 import { Carousel, CarouselResponsiveOption } from 'primereact/carousel';
-import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import * as React from "react";
 import { useEffect, useState } from "react";
@@ -29,65 +28,27 @@ export default function Home() {
   const [userRole] = useState<string | null>(null);
 
 
-  // useEffect(() => {
-  //   const fetchMovies = async () => {
-  //     try {
-  //       const response = await fetch("/api/movies");
-  //       if (!response.ok) {
-  //         throw new Error("Erreur lors du fetch des films");
-  //       }
-  //       const data = await response.json();
-  //       setMovies(data);
-  //     } catch (err: unknown) {
-  //       if (err instanceof Error) {
-  //         setError(err.message);
-  //       } else {
-  //         setError("An unknown error occurred");
-  //       }
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchMovies();
-  // }, []);
-
-
-  // useEffect(() => {
-  //   const fetchUserRole = async () => {
-  //     try {
-  //       const response = await fetch("/api/userRole");
-  //       if (!response.ok) {
-  //         throw new Error("Erreur lors du fetch du rôle utilisateur");
-  //       }
-  //       const data = await response.json();
-  //       setUserRole(data.role);
-  //     } catch (err: unknown) {
-  //       if (err instanceof Error) {
-  //         setError(err.message);
-  //       } else {
-  //         setError("An unknown error occurred");
-  //       }
-  //     }
-  //   };
-
-  //   fetchUserRole();
-  // }, []);
-
   useEffect(() => {
-    const sampleMovies: Movie[] = [
-      { id: 1, title: "Inception", description: "A thief who steals corporate secrets through the use of dream-sharing technology.", release_date: "2010-07-16", duration: 148 },
-      { id: 2, title: "The Matrix", description: "A computer hacker learns about the true nature of reality and his role in the war against its controllers.", release_date: "1999-03-31", duration: 136 },
-      { id: 3, title: "Interstellar", description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.", release_date: "2014-11-07", duration: 169 },
-      { id: 4, title: "The Dark Knight", description: "When the menace known as the Joker emerges, he wreaks havoc and chaos on the people of Gotham.", release_date: "2008-07-18", duration: 152 },
-      { id: 5, title: "Fight Club", description: "An insomniac office worker and a devil-may-care soap maker form an underground fight club.", release_date: "1999-10-15", duration: 139 },
-      { id: 6, title: "Pulp Fiction", description: "The lives of two mob hitmen, a boxer, a gangster's wife, and a pair of diner bandits intertwine.", release_date: "1994-10-14", duration: 154 },
-      { id: 7, title: "Forrest Gump", description: "The presidencies of Kennedy and Johnson, the Vietnam War, and more through the eyes of an Alabama man.", release_date: "1994-07-06", duration: 142 },
-      { id: 8, title: "The Shawshank Redemption", description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption.", release_date: "1994-09-23", duration: 142 },
-    ];
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("/api/movies");
+        if (!response.ok) {
+          throw new Error("Erreur lors du fetch des films");
+        }
+        const data = await response.json();
+        setMovies(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setMovies(sampleMovies);
-    setLoading(false);
+    fetchMovies();
   }, []);
 
   const isAdmin = (): boolean => {
@@ -239,9 +200,7 @@ export default function Home() {
     }
   ];
 
-  const [iconDisabled, setIconDisabled] = useState(false);
   const moviesTemplate = (movie: Movie) => {
-    setIconDisabled(true);
     return (
       <Card
         key={movie.id}
@@ -254,7 +213,6 @@ export default function Home() {
         created_at={new Date().toISOString()}
         updated_at={new Date().toISOString()}
         isAdmin={isAdmin}
-        iconDisabled={iconDisabled}
       />
     );
   };
@@ -267,7 +225,7 @@ export default function Home() {
       {loading && <div className="card flex justify-content-center">
         <ProgressSpinner />
       </div>}
-      {error !== "null" && <Message severity="error" text={`Error: ${error}`} />}
+      {/* {error !== "null" && <Message severity="error" text={`Error: ${error}`} />} */}
 
       {/* Section de recherche par date */}
       <div className="flex flex-col items-center mb-5">

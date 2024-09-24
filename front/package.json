@@ -10,6 +10,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.8",
+    "@heroicons/react": "^2.1.5",
     "@types/axios": "^0.9.36",
     "@types/dompurify": "^3.0.5",
     "@types/js-cookie": "^3.0.6",
