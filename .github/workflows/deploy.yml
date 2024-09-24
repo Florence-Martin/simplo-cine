@@ -67,12 +67,16 @@ jobs:
 
             # Save images with the version tag
             mkdir -p ~/devops/simplo-cine/version
-            for service in movies-service notifications-service rooms-service search-service sessions-service users-service front ; do
+            for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
               # Check if the image exists before trying to save
-              if sudo docker images -q ${service}:${VERSION}; then
-                sudo docker save -o ~/devops/simplo-cine/version/${service}_${VERSION}.tar ${service}:${VERSION}
+              if sudo docker images -q "${service}:${VERSION}"; then
+                sudo docker save -o "~/devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
               else
                 echo "Image ${service}:${VERSION} does not exist, skipping save."
+                # Optionnel : Ajoutez un log pour vérifier si l'image existe sans le tag de version
+                if sudo docker images -q "${service}:latest"; then
+                  echo "Image ${service}:latest exists, consider using it instead."
+                fi
               fi
             done
             
