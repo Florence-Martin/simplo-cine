@@ -58,7 +58,6 @@ jobs:
           password: "cdadevops2024"
           port: 9049
           script: |
-            script: |
             cd ~/devops/simplo-cine
             
             # Lire la version depuis le fichier version.txt
