@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { FaCalendarAlt } from "react-icons/fa";
 
 import Card from "./components/Card";
+import { assignRandomType } from "./utils/assignRandomType";
 // import { MovieAttributes } from './types/types';
 
 interface Movie {
@@ -161,22 +162,6 @@ export default function Home() {
         }
       }
     }
-  };
-
-  const assignRandomType = (movieId: number): string => {
-    const types = ["Romance", "Comédie", "Horreur", "Science-fiction"];
-    const storedTypes = JSON.parse(localStorage.getItem("movieTypes") || "{}");
-
-    if (storedTypes[movieId]) {
-      return storedTypes[movieId];
-    }
-
-    const randomIndex = Math.floor(Math.random() * types.length);
-    const assignedType = types[randomIndex];
-    storedTypes[movieId] = assignedType;
-    localStorage.setItem("movieTypes", JSON.stringify(storedTypes));
-
-    return assignedType;
   };
 
   const responsiveOptions: CarouselResponsiveOption[] = [
