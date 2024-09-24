@@ -1,12 +1,16 @@
 "use client";
 
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+  TransitionChild,
+} from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import * as React from "react";
 import { useState } from "react";
 import { FaEye } from "react-icons/fa";
-
-
 
 import MovieImage from "./MovieImage";
 import { MovieView } from "./resources/MovieView";
@@ -73,7 +77,7 @@ const Card: React.FC<CardProps> = ({
       poster: null,
     };
     setSelectedMovie(movie);
-    setOpen(true)
+    setOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -112,15 +116,12 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-
   return (
     <>
-
-
       <div className="flex justify-center items-center h-screen">
         <div className="max-w-sm rounded overflow-hidden shadow-lg">
           <MovieImage
-            className="w-auto h-60"
+            className="w-auto h-60 object-cover"
             src={assignImageByType(type)}
             alt={`${title} poster`}
           />
@@ -150,7 +151,6 @@ const Card: React.FC<CardProps> = ({
               </>
             )}
 
-
             <div className="flex flex-wrap">
               <div className="w-1/2">
                 <h4 className="text-gray-700 text-base font-semibold mb-2">
@@ -171,7 +171,6 @@ const Card: React.FC<CardProps> = ({
                 )}
               </div>
             </div>
-
 
             {isAdmin() && (
               <>
@@ -221,7 +220,7 @@ const Card: React.FC<CardProps> = ({
                       </h3>
                     </DialogTitle>
                     <MovieImage
-                      className="w-auto h-60"
+                      className="w-auto h-60 object-cover"
                       src={assignImageByType(type)}
                       alt={`${title} poster`}
                     />
@@ -231,7 +230,9 @@ const Card: React.FC<CardProps> = ({
                           Durée :
                         </h4>
                         {duration !== undefined && (
-                          <p className="text-gray-700 text-base">{duration} min</p>
+                          <p className="text-gray-700 text-base">
+                            {duration} min
+                          </p>
                         )}
                       </div>
                       <div className="w-1/2">
@@ -239,7 +240,9 @@ const Card: React.FC<CardProps> = ({
                           Date de sortie :
                         </h4>
                         <p className="text-gray-700 text-base">
-                          {release_date ? new Date(release_date).toLocaleDateString() : "Date non disponible"}
+                          {release_date
+                            ? new Date(release_date).toLocaleDateString()
+                            : "Date non disponible"}
                         </p>
                       </div>
                     </div>
@@ -257,14 +260,15 @@ const Card: React.FC<CardProps> = ({
                       </span>
                     </div>
                   </div>
-                  <div className="relative mt-6 flex-1 px-4 sm:px-6">{/* Your content */}</div>
+                  <div className="relative mt-6 flex-1 px-4 sm:px-6">
+                    {/* Your content */}
+                  </div>
                 </div>
               </DialogPanel>
             </div>
           </div>
         </div>
       </Dialog>
-
 
       {selectedMovie && (
         <MovieView

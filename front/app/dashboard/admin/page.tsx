@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                 Liste des Films
               </h2>
               <div className="bg-orange-500 absolute top-9 left-2 w-[calc(20%)] h-2"></div>
-              <div className="movie-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+              <div className="movie-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                 {movies.map((movie: MovieAttributes) => (
                   <Card
                     key={movie.id}
@@ -282,8 +282,12 @@ export default function AdminDashboard() {
                     type={assignRandomType(movie.id)}
                     release_date={movie.release_date?.toString()}
                     duration={movie.duration}
-                    created_at={new Date().toISOString()}
-                    updated_at={new Date().toISOString()}
+                    created_at={
+                      movie.created_at ? movie.created_at.toISOString() : ""
+                    }
+                    updated_at={
+                      movie.updated_at ? movie.updated_at.toISOString() : ""
+                    }
                     isAdmin={() => true}
                     onModify={handleModifyMovie}
                     onDelete={(movieId) =>
