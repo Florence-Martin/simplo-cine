@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - develop
+    paths-ignore:
+      - version/*.tar
 
 jobs:
   deploy-on-vps:
@@ -41,7 +43,6 @@ jobs:
               git clone --branch develop https://github.com/Florence-Martin/simplo-cine ~/devops/simplo-cine
             else
               cd ~/devops/simplo-cine
-              # Réinitialiser les changements locaux à l'état de la branche distante
               git pull origin develop
             fi
 
@@ -64,7 +65,7 @@ jobs:
             VERSION=$(cat ./version/version.txt)
             
             # Construire et taguer les images Docker
-            sudo docker-compose build --parallel
+            sudo docker-compose build
             sudo docker tag movies-service movies-service:$VERSION
             sudo docker tag notifications-service notifications-service:$VERSION
             sudo docker tag rooms-service rooms-service:$VERSION
@@ -84,6 +85,16 @@ jobs:
             sudo docker tag nginx nginx:$VERSION
             sudo docker tag prometheus prometheus:$VERSION
             sudo docker tag grafana grafana:$VERSION
+
+            # Copie des fichiers versionnés dans le dépôt
+            cp ~/devops/simplo-cine/version/*.tar ~/devops/simplo-cine/version/
+
+            # Engager et pousser les changements vers le dépôt
+            git config --global user.email "pro.legrand.thomas@gmail.com"
+            git config --global user.name "Legrand Thomas"
+            git add version/*.tar
+            git commit -m "[skip ci] Ajout des images versionnées pour la version $VERSION"
+            git push origin develop
 
       - name: Start Docker Containers
         uses: appleboy/ssh-action@v0.1.8
