@@ -77,9 +77,9 @@ export class AuthController {
   
         // Vérifier le rôle de l'utilisateur
         if (typeof tokenDecoded !== "string" && tokenDecoded?.role?.role_name !== "admin") {
-          console.log(tokenDecoded);
-          return res.status(200).json({ decoded });
+          return res.status(403).json({ message: 'Accès refusé ' });
         }
+        return res.status(200).json({ decoded });
     } catch (error) {
       return res.status(401).json({ message: (error as Error).message });
     }
