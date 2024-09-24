@@ -68,7 +68,12 @@ jobs:
             # Save images with the version tag
             mkdir -p ~/devops/simplo-cine/version
             for service in movies-service notifications-service rooms-service search-service sessions-service users-service front nginx prometheus grafana; do
-              sudo docker save -o ~/devops/simplo-cine/version/${service}_${VERSION}.tar ${service}:${VERSION}
+              # Check if the image exists before trying to save
+              if sudo docker images -q ${service}:${VERSION}; then
+                sudo docker save -o ~/devops/simplo-cine/version/${service}_${VERSION}.tar ${service}:${VERSION}
+              else
+                echo "Image ${service}:${VERSION} does not exist, skipping save."
+              fi
             done
             
 
