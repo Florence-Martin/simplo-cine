@@ -273,28 +273,45 @@ export default function AdminDashboard() {
               </h2>
               <div className="bg-orange-500 absolute top-9 left-2 w-[calc(20%)] h-2"></div>
               <div className="movie-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                {movies.map((movie: MovieAttributes) => (
-                  <Card
-                    key={movie.id}
-                    id={movie.id}
-                    title={movie.title}
-                    description={movie.description}
-                    type={assignRandomType(movie.id)}
-                    release_date={movie.release_date?.toString()}
-                    duration={movie.duration}
-                    created_at={
-                      movie.created_at ? movie.created_at.toISOString() : ""
-                    }
-                    updated_at={
-                      movie.updated_at ? movie.updated_at.toISOString() : ""
-                    }
-                    isAdmin={() => true}
-                    onModify={handleModifyMovie}
-                    onDelete={(movieId) =>
-                      setMovies(movies.filter((movie) => movie.id !== movieId))
-                    }
-                  />
-                ))}
+                {movies.map((movie) => {
+                  // Vérifiez et convertissez les dates avant de passer les props
+                  const createdAtString =
+                    movie.created_at &&
+                    !isNaN(new Date(movie.created_at).getTime())
+                      ? new Date(movie.created_at).toISOString()
+                      : "";
+
+                  const updatedAtString =
+                    movie.updated_at &&
+                    !isNaN(new Date(movie.updated_at).getTime())
+                      ? new Date(movie.updated_at).toISOString()
+                      : "";
+
+                  return (
+                    <Card
+                      key={movie.id}
+                      id={movie.id}
+                      title={movie.title}
+                      description={movie.description}
+                      type={assignRandomType(movie.id)}
+                      release_date={
+                        movie.release_date
+                          ? new Date(movie.release_date).toISOString()
+                          : undefined
+                      }
+                      duration={movie.duration}
+                      created_at={createdAtString}
+                      updated_at={updatedAtString}
+                      isAdmin={() => true}
+                      onModify={handleModifyMovie}
+                      onDelete={(movieId) =>
+                        setMovies(
+                          movies.filter((movie) => movie.id !== movieId)
+                        )
+                      }
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
