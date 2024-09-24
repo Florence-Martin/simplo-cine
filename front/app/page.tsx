@@ -1,6 +1,6 @@
 "use client";
 
-import Cookies from 'js-cookie';
+import jwt_decode from 'jwt-decode';
 import { Carousel, CarouselResponsiveOption } from "primereact/carousel";
 import { ProgressSpinner } from "primereact/progressspinner";
 import * as React from "react";
@@ -9,7 +9,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 
 import Card from "./components/Card";
 import { assignRandomType } from "./utils/assignRandomType";
-// import { MovieAttributes } from './types/types';
+import { MovieAttributes } from './types/types';
 
 interface Movie {
   id: number;
@@ -19,20 +19,42 @@ interface Movie {
   duration?: number;
 }
 
+interface DecodedToken {
+  id: number;
+  role: string;
+  iat: number;
+  exp: number;
+}
+
 export default function Home() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [moviesWithDate, setMoviesWhitDate] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-
+  // Fonction pour récupérer un cookie par son nom
+  const getCookieValue = (name: string): string | null => {
+    const cookies = document.cookie.split('; ');
+    const cookie = cookies.find((cookie) => cookie.startsWith(`${name}=`));
+    return cookie ? cookie.split('=')[1] : null;
+  };
+  // Fonction pour décoder un JWT manuellement
+  const decodeJWT = (token: string) => {
+    const payload = token.split('.')[1]; // Récupérer la 2ème partie du JWT (le payload)
+    const decodedPayload = atob(payload); // Décoder en base64
+    return JSON.parse(decodedPayload); // Convertir en objet JavaScript
+  };
+  // Utiliser useEffect pour vérifier le token au chargement du composant
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (token) {
-      console.log('Token:', token);
-    } else {
-      console.log('No token found in cookies');
+    const authToken = getCookieValue('authToken');
+
+    if (authToken) {
+      const decodedToken = decodeJWT(authToken);
+      console.log('Token décodé:', decodedToken); // Affiche les données du token
+
+      // Vérifier le rôle de l'utilisateur
+      setUserRole(decodedToken.role);
     }
   }, []);
 
