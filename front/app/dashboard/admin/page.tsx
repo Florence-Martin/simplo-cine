@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AiOutlineCheck, AiOutlineClose } from "react-icons/ai";
+import moment from "moment";
 
 import Card from "../../components/Card";
 import { AddHallCard } from "../../components/resources/AddHallCard";
@@ -46,6 +47,29 @@ export default function AdminDashboard() {
       "Erreur lors de la récupération des séances."
     );
   }, []);
+
+  // Met à jour les événements du calendrier à chaque modification des films
+  useEffect(() => {
+    const updatedEvents = movies.map((movie) => {
+      const releaseDate = new Date(movie.release_date || "");
+      const createdAt = new Date(movie.created_at || "");
+      const start = isNaN(releaseDate.getTime()) ? createdAt : releaseDate;
+
+      return {
+        id: movie.id,
+        title: movie.title,
+        start: start,
+        end: new Date(
+          moment(start)
+            .add(movie.duration || 120, "minutes")
+            .toDate()
+        ),
+        desc: movie.description || "",
+      };
+    });
+
+    setEvents(updatedEvents);
+  }, [movies]);
 
   // Récupération des données générique
   const fetchData = async (
