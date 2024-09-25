@@ -48,12 +48,11 @@ export default function AdminDashboard() {
     );
   }, []);
 
-  // Met à jour les événements du calendrier à chaque modification des films
+  // Un seul useEffect pour mettre à jour les événements
   useEffect(() => {
-    const updatedEvents = movies.map((movie) => {
+    const movieEvents = movies.map((movie) => {
       const releaseDate = new Date(movie.release_date || "");
-      const createdAt = new Date(movie.created_at || "");
-      const start = isNaN(releaseDate.getTime()) ? createdAt : releaseDate;
+      const start = isNaN(releaseDate.getTime()) ? new Date() : releaseDate;
 
       return {
         id: movie.id,
@@ -68,8 +67,16 @@ export default function AdminDashboard() {
       };
     });
 
-    setEvents(updatedEvents);
-  }, [movies]);
+    const screeningEvents = screenings
+      .map((screening) => {
+        const movie = movies.find((m) => m.id === screening.movieId);
+        if (!movie) return null;
+        return createEvent(screening, movie);
+      })
+      .filter(Boolean) as MovieEvent[];
+
+    setEvents([...movieEvents, ...screeningEvents]);
+  }, [movies, screenings]);
 
   // Récupération des données générique
   const fetchData = async (
@@ -93,19 +100,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Mettre à jour les événements du calendrier en fonction des séances
-  useEffect(() => {
-    const updatedEvents: MovieEvent[] = screenings
-      .map((screening) => {
-        const movie = movies.find((m) => m.id === screening.movieId);
-        if (!movie) return null;
-        return createEvent(screening, movie);
-      })
-      .filter(Boolean) as MovieEvent[];
-
-    setEvents(updatedEvents);
-  }, [screenings, movies]);
-
   // Créer un événement de calendrier
   const createEvent = (
     screening: ScreeningAttributes,
@@ -128,6 +122,7 @@ export default function AdminDashboard() {
       setError("Veuillez remplir tous les champs requis.");
       return;
     }
+
     const addedMovie = await handleApiRequest(
       "/api/movies",
       "POST",
@@ -137,16 +132,18 @@ export default function AdminDashboard() {
     );
 
     if (addedMovie) {
-      // Créer un événement par défaut pour le calendrier
       const defaultEvent: MovieEvent = {
         id: addedMovie.id,
         title: addedMovie.title,
-        start: new Date(addedMovie.release_date), // Utilisez la date de sortie comme date de début
-        end: new Date(addedMovie.release_date), // Même date pour l'heure de fin (placeholder)
+        start: new Date(addedMovie.release_date),
+        end: new Date(
+          moment(new Date(addedMovie.release_date))
+            .add(addedMovie.duration || 120, "minutes")
+            .toDate()
+        ),
         desc: addedMovie.description || "Aucune description",
       };
 
-      // Mettre à jour les événements dans l'état
       setEvents((prevEvents) => [...prevEvents, defaultEvent]);
     }
   };
@@ -171,6 +168,7 @@ export default function AdminDashboard() {
       heure_fin: newScreening.endTime,
       nb_spectateurs: newScreening.spectatorsCount || 0,
     };
+
     const addedScreening = await handleApiRequest(
       "/api/sessions",
       "POST",
@@ -178,6 +176,7 @@ export default function AdminDashboard() {
       setScreenings,
       "Séance planifiée avec succès !"
     );
+
     if (addedScreening) {
       const movie = movies.find((m) => m.id === newScreening.movieId);
       if (movie)
@@ -222,7 +221,12 @@ export default function AdminDashboard() {
       "Le film a été supprimé avec succès."
     );
 
-    if (deleted) handleCloseModal();
+    if (deleted) {
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== selectedMovie.id)
+      );
+      handleCloseModal();
+    }
   };
 
   // Gestion des requêtes API
@@ -312,18 +316,12 @@ export default function AdminDashboard() {
               <div className="bg-orange-500 absolute top-9 left-2 w-[calc(20%)] h-2"></div>
               <div className="movie-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                 {movies.map((movie) => {
-                  // Vérifiez et convertissez les dates avant de passer les props
-                  const createdAtString =
-                    movie.created_at &&
-                    !isNaN(new Date(movie.created_at).getTime())
-                      ? new Date(movie.created_at).toISOString()
-                      : "";
-
-                  const updatedAtString =
-                    movie.updated_at &&
-                    !isNaN(new Date(movie.updated_at).getTime())
-                      ? new Date(movie.updated_at).toISOString()
-                      : "";
+                  const createdAtString = movie.created_at
+                    ? new Date(movie.created_at).toISOString()
+                    : "";
+                  const updatedAtString = movie.updated_at
+                    ? new Date(movie.updated_at).toISOString()
+                    : "";
 
                   return (
                     <Card
