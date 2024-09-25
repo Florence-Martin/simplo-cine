@@ -104,13 +104,27 @@ export default function AdminDashboard() {
       setError("Veuillez remplir tous les champs requis.");
       return;
     }
-    await handleApiRequest(
+    const addedMovie = await handleApiRequest(
       "/api/movies",
       "POST",
       newMovie,
       setMovies,
       "Le film a été ajouté avec succès !"
     );
+
+    if (addedMovie) {
+      // Créer un événement par défaut pour le calendrier
+      const defaultEvent: MovieEvent = {
+        id: addedMovie.id,
+        title: addedMovie.title,
+        start: new Date(addedMovie.release_date), // Utilisez la date de sortie comme date de début
+        end: new Date(addedMovie.release_date), // Même date pour l'heure de fin (placeholder)
+        desc: addedMovie.description || "Aucune description",
+      };
+
+      // Mettre à jour les événements dans l'état
+      setEvents((prevEvents) => [...prevEvents, defaultEvent]);
+    }
   };
 
   // Gérer l'ajout d'une salle
