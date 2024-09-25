@@ -48,7 +48,7 @@ export default function AdminDashboard() {
     );
   }, []);
 
-  // Un seul useEffect pour mettre à jour les événements
+  // Mise à jour des événements du calendrier
   useEffect(() => {
     const movieEvents = movies.map((movie) => {
       const releaseDate = new Date(movie.release_date || "");
@@ -122,7 +122,6 @@ export default function AdminDashboard() {
       setError("Veuillez remplir tous les champs requis.");
       return;
     }
-
     const addedMovie = await handleApiRequest(
       "/api/movies",
       "POST",
@@ -132,6 +131,7 @@ export default function AdminDashboard() {
     );
 
     if (addedMovie) {
+      // Créer un événement par défaut pour le calendrier
       const defaultEvent: MovieEvent = {
         id: addedMovie.id,
         title: addedMovie.title,
