@@ -61,7 +61,7 @@ jobs:
           port: 9049
           script: |
             cd ~/devops/simplo-cine
-            
+
             # Build Docker images and tag them with the version
             VERSION=$(cat ./version/version.txt)
             echo "VERSION: $VERSION"
@@ -91,8 +91,6 @@ jobs:
             else
               echo "No .tar files to commit."
             fi
-
-            
 
       - name: Start Docker Containers
         uses: appleboy/ssh-action@v0.1.8
