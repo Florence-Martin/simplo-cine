@@ -1,14 +1,6 @@
 version: '3.8'
 
 services:
-  # Service Nginx
-  nginx:
-    image: scalp852/nginx:1.0.0
-    ports:
-      - "8080:8080"
-    networks:
-      - simplo-cine-network
-
   # Service Frontend (Next.js)
   front:
     image: scalp852/front-app:1.0.0
@@ -214,6 +206,14 @@ services:
     image: grafana/grafana
     ports:
       - "3010:3000"
+    networks:
+      - simplo-cine-network
+      
+# Service Nginx      
+  nginx:
+    image: scalp852/nginx:1.0.0
+    ports:
+      - "8080:8080"
     networks:
       - simplo-cine-network
 
