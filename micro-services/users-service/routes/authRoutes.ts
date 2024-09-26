@@ -58,6 +58,39 @@ router.post("/register", authController.register);
  *         description: Identifiants incorrects
  */
 router.post("/signin", authController.login);
+
+/**
+ * @swagger
+ * /auth/verifyToken:
+ *   get:
+ *     summary: Vérifie la validité d'un jeton JWT
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         description: Jeton d'accès JWT au format `Bearer <token>`
+ *         schema:
+ *           type: string
+ *           example: "Bearer <votre_jeton>"
+ *     responses:
+ *       200:
+ *         description: Jeton valide
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valid:
+ *                   type: boolean
+ *                   example: true
+ *                 userId:
+ *                   type: string
+ *                   description: ID de l'utilisateur associé au jeton
+ *                   example: "123456"
+ *       401:
+ *         description: Jeton invalide ou expiré
+ */
 router.get("/verifyToken", authController.verifyToken);
 
 export default router;
