@@ -3,81 +3,81 @@ name: Build and Push Docker Images
 on:
   push:
     branches:
-      - develop  # Changez la branche si nécessaire
+      - develop # Changez la branche si nécessaire
 
 jobs:
   build_and_push_images_dockerhub:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    - name: Build and push microservice images
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/users-service:1.0.0 ./micro-services/users-service
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:1.0.0 ./micro-services/movies-service
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/search-service:1.0.0 ./micro-services/search-service
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:1.0.0 ./micro-services/sessions-service
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:1.0.0 ./micro-services/rooms-service
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:1.0.0 ./micro-services/notifications-service
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/front-app:1.0.0 ./front
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:1.0.0 ./monitoring/prometheus
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/users-service:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/search-service:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/front-app:1.0.0
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:1.0.0
+      - name: Build and push microservice images
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/users-service:1.0.0 ./micro-services/users-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:1.0.0 ./micro-services/movies-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/search-service:1.0.0 ./micro-services/search-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:1.0.0 ./micro-services/sessions-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:1.0.0 ./micro-services/rooms-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:1.0.0 ./micro-services/notifications-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/front-app:1.0.0 ./front
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:1.0.0 ./monitoring/prometheus
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/users-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/search-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/front-app:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:1.0.0
 
-    - name: Build and push nginx image
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0 ./api/nginx
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0
+      - name: Build and push nginx image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0 ./api/nginx
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0
 
   remove_containers_network_cine_and_create_repo:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        - name: Deploy to VPS
-          uses: appleboy/ssh-action@v0.1.8
-          with:
-            host: 45.81.84.133
-            username: "adminlocal"
-            password: "cdadevops2024"
-            port: 9049
-            script: |
-              # Arrêter tous les conteneurs s'ils existent
-              containers=$(sudo docker ps -q)
-              if [ -n "$containers" ]; then
-                sudo docker stop $containers
-              fi
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            # Arrêter tous les conteneurs s'ils existent
+            containers=$(sudo docker ps -q)
+            if [ -n "$containers" ]; then
+              sudo docker stop $containers
+            fi
 
-              # Supprimer tous les conteneurs + network s'ils existent
-              containers=$(sudo docker ps -a -q)
-              if [ -n "$containers" ]; then
-                sudo docker rm $containers
-                # Supprime le network custom
-                sudo docker network rm simplo-cine_simplo-cine-network
-              fi
+            # Supprimer tous les conteneurs + network s'ils existent
+            containers=$(sudo docker ps -a -q)
+            if [ -n "$containers" ]; then
+              sudo docker rm $containers
+              # Supprime le network custom
+              sudo docker network rm simplo-cine_simplo-cine-network
+            fi
 
-              # Vérifier si le répertoire existe, sinon le cloner
-              if [ ! -d ~/devops/simplo-cine ]; then
-                mkdir -p ~/devops/simplo-cine
-              fi
+            # Vérifier si le répertoire existe, sinon le cloner
+            if [ ! -d ~/devops/simplo-cine ]; then
+              mkdir -p ~/devops/simplo-cine
+            fi
 
   build_app_with_docker_compose_file:
     runs-on: ubuntu-latest
@@ -87,10 +87,10 @@ jobs:
       - name: Build Docker Containers
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: 45.81.84.133
-          username: "adminlocal"
-          password: "cdadevops2024"
-          port: 9049
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
             cd ~/devops/simplo-cine
             sudo docker-compose down
@@ -99,10 +99,10 @@ jobs:
       - name: Start Docker Containers
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: 45.81.84.133
-          username: "adminlocal"
-          password: "cdadevops2024"
-          port: 9049
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
             cd ~/devops/simplo-cine
             sudo docker-compose up --build -d
