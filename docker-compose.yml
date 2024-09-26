@@ -1,14 +1,19 @@
 version: '3.8'
 
 services:
+  # Service Nginx
+  nginx:
+    image: scalp852/nginx:1.0.0
+    ports:
+      - "8080:8080"
+    networks:
+      - simplo-cine-network
+
   # Service Frontend (Next.js)
   front:
-    build: ./front
-    image: front:1.0.0
+    image: scalp852/front-app:1.0.0
     ports:
       - "3000:3000"
-    volumes:
-      - ./front:/app
     networks:
       - simplo-cine-network
     healthcheck:
@@ -19,8 +24,7 @@ services:
 
   # Service de gestion des films
   movies-service:
-    build: ./micro-services/movies-service
-    image: movies-service:1.0.0
+    image: scalp852/movies-service:1.0.0
     ports:
       - "3001:3000"
     depends_on:
@@ -53,8 +57,7 @@ services:
 
   # Service de notifications
   notifications-service:
-    build: ./micro-services/notifications-service
-    image: notifications-service:1.0.0
+    image: scalp852/notifications-service:1.0.0
     ports:
       - "3003:3000"
     environment:
@@ -70,8 +73,7 @@ services:
 
   # Service de gestion des salles
   rooms-service:
-    build: ./micro-services/rooms-service
-    image: rooms-service:1.0.0
+    image: scalp852/rooms-service:1.0.0
     ports:
       - "3004:3000"
     depends_on:
@@ -104,8 +106,7 @@ services:
 
   # Service de recherche
   search-service:
-    build: ./micro-services/search-service
-    image: search-service:1.0.0
+    image: scalp852/search-service:1.0.0
     ports:
       - "3005:3000"
     depends_on:
@@ -138,8 +139,7 @@ services:
 
   # Service de gestion des sessions
   sessions-service:
-    build: ./micro-services/sessions-service
-    image: sessions-service:1.0.0
+    image: scalp852/sessions-service:1.0.0
     ports:
       - "3006:3000"
     depends_on:
@@ -172,8 +172,7 @@ services:
 
   # Service de gestion des utilisateurs
   users-service:
-    build: ./micro-services/users-service
-    image: users-service:1.0.0
+    image: scalp852/users-service:1.0.0
     ports:
       - "3007:3000"
     depends_on:
@@ -205,9 +204,7 @@ services:
       retries: 5
 
   prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    image: scalp852/prometheus-service:1.0.0    
     ports:
       - "9090:9090"
     networks:
@@ -219,17 +216,6 @@ services:
       - "3010:3000"
     networks:
       - simplo-cine-network
-
-   # Service Nginx
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./api/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - simplo-cine-network
-    restart: always
 
 volumes:
   postgres_data_movie:
