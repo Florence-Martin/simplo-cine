@@ -1,4 +1,4 @@
-name: Build, Test and Deploy
+name: Build and Push Docker Images
 
 on:
   push:
@@ -6,59 +6,7 @@ on:
       - develop
 
 jobs:
-  # Étape de tests unitaires pour tous les microservices
-  run_tests_microservices:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Test pour chaque microservice
-      # - name: Run tests for users-service
-      #   run: |
-      #     cd micro-services/users-service
-      #     npm install
-      #     npm run test
-
-      - name: Run tests for movies-service
-        run: |
-          cd micro-services/movies-service
-          npm install
-          npm run test
-
-      # - name: Run tests for search-service
-      #   run: |
-      #     cd micro-services/search-service
-      #     npm install
-      #     npm run test
-
-      # - name: Run tests for sessions-service
-      #   run: |
-      #     cd micro-services/sessions-service
-      #     npm install
-      #     npm run test
-
-      # - name: Run tests for rooms-service
-      #   run: |
-      #     cd micro-services/rooms-service
-      #     npm install
-      #     npm run test
-
-      # - name: Run tests for notifications-service
-      #   run: |
-      #     cd micro-services/notifications-service
-      #     npm install
-      #     npm run test
-
-      # - name: Run tests for front-app
-      #   run: |
-      #     cd front
-      #     npm install
-      #     npm test
-
-  # Étape de construction et de publication des images Docker
-  build_and_push_docker_images:
+  build_and_push_images_dockerhub:
     runs-on: ubuntu-latest
     needs: run_tests_microservices
 
@@ -128,12 +76,7 @@ jobs:
               sudo docker network rm simplo-cine_simplo-cine-network
             fi
 
-            if [ ! -d ~/devops/simplo-cine ]; then
-              mkdir -p ~/devops/simplo-cine
-            fi
-
-  # Étape de déploiement avec Docker Compose
-  deploy_application_on_vps:
+  build_app_with_docker_compose_file:
     runs-on: ubuntu-latest
     needs: cleanup_and_prepare_vps
 
