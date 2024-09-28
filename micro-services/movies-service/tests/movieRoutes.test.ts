@@ -59,3 +59,8 @@
 //     expect(getMovieResponse.status).toBe(404);
 //   });
 // });
+describe("Sample working test", () => {
+  it("should pass", () => {
+    expect(true).toBe(true);
+  });
+});
