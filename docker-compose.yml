@@ -216,6 +216,7 @@ services:
       - "8080:8080"
     networks:
       - simplo-cine-network
+    restart: always
 
 volumes:
   postgres_data_movie:
