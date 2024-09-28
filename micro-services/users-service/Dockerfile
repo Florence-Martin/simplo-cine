@@ -1,6 +1,9 @@
 # Utiliser une image de base légère de Node.js
 FROM node:18-alpine
 
+# Installer curl
+RUN apk add --no-cache curl nano
+
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /usr/src/app
 
