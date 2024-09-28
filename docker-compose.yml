@@ -12,7 +12,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   # Service de gestion des films
   movies-service:
@@ -29,7 +29,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   postgres_movies:
     image: postgres:13
@@ -61,7 +61,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   # Service de gestion des salles
   rooms-service:
@@ -78,7 +78,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   postgres_rooms:
     image: postgres:13
@@ -111,7 +111,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   postgres_search:
     image: postgres:13
@@ -144,7 +144,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   postgres_sessions:
     image: postgres:13
@@ -177,7 +177,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   postgres_users:
     image: postgres:13
