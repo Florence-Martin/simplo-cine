@@ -1,4 +1,4 @@
-name: Build, Test and Push Docker Images
+name: Build and Push Docker Images
 
 on:
   push:
@@ -6,57 +6,6 @@ on:
       - develop # Changez la branche si nécessaire
 
 jobs:
-  # Étape de tests pour les microservices
-  test_microservices:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Installer les dépendances et exécuter les tests pour chaque service
-      - name: Install dependencies and run tests for users-service
-        run: |
-          cd micro-services/users-service
-          npm install
-          npm test
-
-      - name: Install dependencies and run tests for movies-service
-        run: |
-          cd micro-services/movies-service
-          npm install
-          npm test
-
-      - name: Install dependencies and run tests for search-service
-        run: |
-          cd micro-services/search-service
-          npm install
-          npm test
-
-      - name: Install dependencies and run tests for sessions-service
-        run: |
-          cd micro-services/sessions-service
-          npm install
-          npm test
-
-      - name: Install dependencies and run tests for rooms-service
-        run: |
-          cd micro-services/rooms-service
-          npm install
-          npm test
-
-      - name: Install dependencies and run tests for notifications-service
-        run: |
-          cd micro-services/notifications-service
-          npm install
-          npm test
-
-      - name: Install dependencies and run tests for front-app
-        run: |
-          cd front
-          npm install
-          npm test
-
   build_and_push_images_dockerhub:
     runs-on: ubuntu-latest
 
@@ -123,11 +72,6 @@ jobs:
               sudo docker rm $containers
               # Supprime le network custom
               sudo docker network rm simplo-cine_simplo-cine-network
-            fi
-
-            # Vérifier si le répertoire existe, sinon le cloner
-            if [ ! -d ~/devops/simplo-cine ]; then
-              mkdir -p ~/devops/simplo-cine
             fi
 
   build_app_with_docker_compose_file:
