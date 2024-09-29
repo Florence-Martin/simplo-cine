@@ -146,12 +146,16 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          script: |
-            # Se rendre dans le répertoire de déploiement
-            cd ~/devops/simplo-cine
-            
-            # Copier le fichier docker-compose.yml depuis le dépôt
-            scp -P ${{ secrets.VPS_PORT }} docker-compose.yml ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/devops/simplo-cine/
+          script: |            
+            # Vérifier si le répertoire existe, sinon le cloner
+            if [ ! -d ~/devops/simplo-cine ]; then
+              mkdir -p ~/devops
+              git clone --branch develop https://github.com/Florence-Martin/simplo-cine ~/devops/simplo-cine
+            else
+              cd ~/devops/simplo-cine
+              git fetch origin develop
+              git reset --hard origin/develop
+            fi
             
             # Arrêter et supprimer les conteneurs existants
             sudo docker-compose down
