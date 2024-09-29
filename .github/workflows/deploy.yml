@@ -129,9 +129,6 @@ jobs:
               sudo docker network rm simplo-cine_simplo-cine-network
             fi
 
-            if [ ! -d ~/devops/simplo-cine ]; then
-              mkdir -p ~/devops/simplo-cine
-            fi
 
   # Étape de déploiement avec Docker Compose
   deploy_application_on_vps:
