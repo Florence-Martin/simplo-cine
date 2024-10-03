@@ -99,20 +99,20 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/front-app:$VERSION
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:$VERSION
 
-           # Save images with the version tag
-            mkdir -p ~/devops/simplo-cine/version
-            for service in movies-service notifications-service rooms-service search-service sessions-service users-service front prometheus; do
-              # Check if the image exists before trying to save
-              if sudo docker images -q "${service}:${VERSION}"; then
-                 sudo docker save -o "/home/adminlocal/devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
-              else
-                echo "Image ${service}:${VERSION} does not exist, skipping save."
-                # Optionnel : Ajoutez un log pour vérifier si l'image existe sans le tag de version
-                if sudo docker images -q "${service}:latest"; then
-                  echo "Image ${service}:latest exists, consider using it instead."
-                fi
-              fi
-            done
+          # Save images with the version tag
+          mkdir -p ~/devops/simplo-cine/version
+          for service in movies-service notifications-service rooms-service search-service sessions-service users-service front prometheus; do
+          # Check if the image exists before trying to save
+          if sudo docker images -q "${service}:${VERSION}"; then
+            sudo docker save -o "/home/adminlocal/devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+          else
+            echo "Image ${service}:${VERSION} does not exist, skipping save."
+            # Optionnel : Ajoutez un log pour vérifier si l'image existe sans le tag de version
+            if sudo docker images -q "${service}:latest"; then
+              echo "Image ${service}:latest exists, consider using it instead."
+            fi
+          fi
+          done
 
              # Change ownership of tar files to ensure permission
             sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
