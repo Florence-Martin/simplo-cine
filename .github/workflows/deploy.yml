@@ -173,7 +173,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          script: |            
+          script: |
+            VERSION=$(cat ./version/version.txt)            
             # Vérifier si le répertoire existe, sinon le cloner
             if [ ! -d ~/devops/simplo-cine ]; then
               mkdir -p ~/devops
@@ -189,4 +190,5 @@ jobs:
             
             # Construire et démarrer les nouveaux conteneurs
             sudo docker-compose build --parallel
+            export VERSION=${VERSION}
             sudo docker-compose up -d
