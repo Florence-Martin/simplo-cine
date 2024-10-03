@@ -130,8 +130,7 @@ jobs:
       - name: Build and push Nginx image
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION ./api/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION
-
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0
 
   # Étape de nettoyage des anciens conteneurs et réseau sur le VPS
   cleanup_and_prepare_vps:
@@ -160,7 +159,7 @@ jobs:
               sudo docker network rm simplo-cine_simplo-cine-network
             fi
 
-           sudo docker image prune -a -f
+            sudo docker image prune -a -f
 
   # Étape de déploiement avec Docker Compose
   deploy_application_on_vps:
