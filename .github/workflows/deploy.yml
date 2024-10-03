@@ -129,8 +129,8 @@ jobs:
 
       - name: Build and push Nginx image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION ./api/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${VERSION}./api/nginx
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${VERSION}
 
   # Étape de nettoyage des anciens conteneurs et réseau sur le VPS
   cleanup_and_prepare_vps:
