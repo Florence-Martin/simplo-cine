@@ -103,15 +103,15 @@ jobs:
           mkdir -p ~/devops/simplo-cine/version
           for service in movies-service notifications-service rooms-service search-service sessions-service users-service front prometheus; do
           # Check if the image exists before trying to save
-          if sudo docker images -q "${service}:${VERSION}"; then
-            sudo docker save -o "/home/adminlocal/devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
-          else
-            echo "Image ${service}:${VERSION} does not exist, skipping save."
-            # Optionnel : Ajoutez un log pour vérifier si l'image existe sans le tag de version
-            if sudo docker images -q "${service}:latest"; then
-              echo "Image ${service}:latest exists, consider using it instead."
+            if sudo docker images -q "${service}:${VERSION}"; then
+              sudo docker save -o "/home/adminlocal/devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+            else
+              echo "Image ${service}:${VERSION} does not exist, skipping save."
+              # Optionnel : Ajoutez un log pour vérifier si l'image existe sans le tag de version
+              if sudo docker images -q "${service}:latest"; then
+                echo "Image ${service}:latest exists, consider using it instead."
+              fi
             fi
-          fi
           done
 
              # Change ownership of tar files to ensure permission
@@ -155,13 +155,13 @@ jobs:
               sudo docker stop $containers
             fi
 
-             containers=$(sudo docker ps -a -q)
+            containers=$(sudo docker ps -a -q)
             if [ -n "$containers" ]; then
               sudo docker rm $containers
               sudo docker network rm simplo-cine_simplo-cine-network
             fi
 
-           sudo docker image prune -a
+           sudo docker image prune -a -f
 
   # Étape de déploiement avec Docker Compose
   deploy_application_on_vps:
