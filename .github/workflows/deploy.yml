@@ -129,8 +129,15 @@ jobs:
 
       - name: Build and push Nginx image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0 ./api/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0
+          # Lire le fichier de version
+          VERSION=$(cat ./version/version.txt)
+
+          # Afficher la version pour vérification
+          echo "Building Nginx with version: $VERSION"
+
+          # Construire et pousser l'image Docker avec la version
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION ./api/nginx
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION
 
   # Étape de nettoyage des anciens conteneurs et réseau sur le VPS
   cleanup_and_prepare_vps:
@@ -184,10 +191,10 @@ jobs:
               git fetch origin develop
               git reset --hard origin/develop
             fi
-            
+
             # Arrêter et supprimer les conteneurs existants
             sudo docker-compose down
-            
+
             # Construire et démarrer les nouveaux conteneurs
             sudo docker-compose build --parallel
             export VERSION=${VERSION}
