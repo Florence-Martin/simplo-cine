@@ -114,18 +114,18 @@ jobs:
             fi
           done
 
-             # Change ownership of tar files to ensure permission
-            sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
+          # Change ownership of tar files to ensure permission
+          sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
 
-             # Commit and push the .tar files
-            cd ~/devops/simplo-cine/version
-            if [ "$(ls *.tar 2>/dev/null)" ]; then
-              git add .
-              git commit -m "Add Docker images version ${VERSION}" || echo "No changes to commit."
-              git push origin develop || echo "Failed to push changes."
-            else
-              echo "No .tar files to commit."
-            fi
+          # Commit and push the .tar files
+          cd ~/devops/simplo-cine/version
+          if [ "$(ls *.tar 2>/dev/null)" ]; then
+            git add .
+            git commit -m "Add Docker images version ${VERSION}" || echo "No changes to commit."
+            git push origin develop || echo "Failed to push changes."
+          else
+            echo "No .tar files to commit."
+          fi
 
       - name: Build and push Nginx image
         run: |
