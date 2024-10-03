@@ -78,28 +78,60 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/users-service:1.0.0 ./micro-services/users-service
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:1.0.0 ./micro-services/movies-service
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/search-service:1.0.0 ./micro-services/search-service
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:1.0.0 ./micro-services/sessions-service
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:1.0.0 ./micro-services/rooms-service
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:1.0.0 ./micro-services/notifications-service
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/front-app:1.0.0 ./front
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:1.0.0 ./monitoring/prometheus
+          # Build Docker images and tag them with the version
+          VERSION=$(cat ./version/version.txt)
+          echo "VERSION: $VERSION"
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/users-service:$VERSION ./micro-services/users-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:$VERSION ./micro-services/movies-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/search-service:$VERSION ./micro-services/search-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:$VERSION ./micro-services/sessions-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:$VERSION ./micro-services/rooms-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:$VERSION ./micro-services/notifications-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/front-app:$VERSION ./front
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:$VERSION ./monitoring/prometheus
 
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/users-service:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/search-service:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/front-app:1.0.0
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:1.0.0
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/users-service:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/search-service:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/front-app:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:$VERSION
+
+           # Save images with the version tag
+            mkdir -p ~/devops/simplo-cine/version
+            for service in movies-service notifications-service rooms-service search-service sessions-service users-service front prometheus; do
+              # Check if the image exists before trying to save
+              if sudo docker images -q "${service}:${VERSION}"; then
+                 sudo docker save -o "/home/adminlocal/devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+              else
+                echo "Image ${service}:${VERSION} does not exist, skipping save."
+                # Optionnel : Ajoutez un log pour vérifier si l'image existe sans le tag de version
+                if sudo docker images -q "${service}:latest"; then
+                  echo "Image ${service}:latest exists, consider using it instead."
+                fi
+              fi
+            done
+
+             # Change ownership of tar files to ensure permission
+            sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
+
+             # Commit and push the .tar files
+            cd ~/devops/simplo-cine/version
+            if [ "$(ls *.tar 2>/dev/null)" ]; then
+              git add .
+              git commit -m "Add Docker images version ${VERSION}" || echo "No changes to commit."
+              git push origin develop || echo "Failed to push changes."
+            else
+              echo "No .tar files to commit."
+            fi
 
       - name: Build and push Nginx image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0 ./api/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:1.0.0
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION ./api/nginx
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION
+
 
   # Étape de nettoyage des anciens conteneurs et réseau sur le VPS
   cleanup_and_prepare_vps:
@@ -123,18 +155,18 @@ jobs:
               sudo docker stop $containers
             fi
 
-            containers=$(sudo docker ps -a -q)
+             containers=$(sudo docker ps -a -q)
             if [ -n "$containers" ]; then
               sudo docker rm $containers
               sudo docker network rm simplo-cine_simplo-cine-network
             fi
 
+           sudo docker image prune -a
 
   # Étape de déploiement avec Docker Compose
   deploy_application_on_vps:
     runs-on: ubuntu-latest
     needs: cleanup_and_prepare_vps
-
     steps:
       - name: Deploy the application
         uses: appleboy/ssh-action@v0.1.8

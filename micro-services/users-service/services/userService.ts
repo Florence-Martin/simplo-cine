@@ -1,5 +1,6 @@
 import Role from "../models/role";
 import User from "../models/user";
+import { hashPassword } from "../utils/authUtils";
 
 export class UserService {
   // Récupérer tous les utilisateurs
@@ -37,6 +38,8 @@ export class UserService {
     password: string;
     role: Role;
   }) {
+    const hashedPassword = await hashPassword(data.password); // Hachage via authUtils
+    data.password=hashedPassword;
     try {
       const newUser = await User.create(data);
       return newUser;
