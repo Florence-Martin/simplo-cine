@@ -101,15 +101,15 @@ jobs:
 
         
           # Créer le répertoire version s'il n'existe pas
-          mkdir -p ~/devops/simplo-cine/version
+          mkdir -p ./version
 
           # Changer de répertoire
-          cd ~/devops/simplo-cine/version
+          cd ./version
 
           # Sauvegarder les images Docker avec la version taggée
           for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
             if sudo docker images -q "${service}:${VERSION}"; then
-              sudo docker save -o "./devops/simplo-cine/version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+              sudo docker save -o "./version/${service}_${VERSION}.tar" "${service}:${VERSION}"
             else
               echo "Image ${service}:${VERSION} does not exist, skipping save."
             fi
