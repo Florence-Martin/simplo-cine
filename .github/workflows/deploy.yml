@@ -182,7 +182,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            VERSION=$(cat ./version/version.txt)            
+            VERSION=$(cat ~/devops/simplo-cine/version/version.txt)            
             # Vérifier si le répertoire existe, sinon le cloner
             if [ ! -d ~/devops/simplo-cine ]; then
               mkdir -p ~/devops
