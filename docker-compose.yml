@@ -1,7 +1,7 @@
 services:
   # Service Frontend (Next.js)
   front:
-    image: scalp852/front-app:${VERSION}
+    image: scalp852/front-app:1.0.0
     ports:
       - "3000:3000"
     networks:
