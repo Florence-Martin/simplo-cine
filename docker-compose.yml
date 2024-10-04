@@ -1,7 +1,7 @@
 services:
   # Service Frontend (Next.js)
   front:
-    image: scalp852/front-app:1.0.0
+    image: scalp852/front-app:${VERSION}
     ports:
       - "3000:3000"
     networks:
@@ -199,8 +199,8 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./monitoring/prometheus/data:/prometheus
-      - ./monitoring/prometheus/logs:/var/log/prometheus
+      # - ./monitoring/prometheus/data:/prometheus
+      # - ./monitoring/prometheus/logs:/var/log/prometheus
     networks:
       - simplo-cine-network
 
@@ -208,9 +208,9 @@ services:
     image: grafana/grafana
     ports:
       - "3010:3000"
-    volumes:
-      - ./monitoring/grafana/data:/var/lib/grafana
-      - ./monitoring/grafana/logs:/var/log/grafana
+    # volumes:
+    #   - ./monitoring/grafana/data:/var/lib/grafana
+    #   - ./monitoring/grafana/logs:/var/log/grafana
     networks:
       - simplo-cine-network
       
