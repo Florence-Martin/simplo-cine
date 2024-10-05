@@ -100,20 +100,16 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:${VERSION}
 
         
-          # Créer le répertoire version s'il n'existe pas
-          mkdir -p ./version
+          cd ~/devops/simplo-cine/version
 
-          # # Changer de répertoire
-          # cd ./version
-
-          # # Sauvegarder les images Docker avec la version taggée
-          # for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
-          #   if sudo docker images -q "${service}:${VERSION}"; then
-          #     sudo docker save -o "./version/${service}_${VERSION}.tar" "${service}:${VERSION}"
-          #   else
-          #     echo "Image ${service}:${VERSION} does not exist, skipping save."
-          #   fi
-          # done
+          # Sauvegarder les images Docker avec la version taggée
+          for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
+            if sudo docker images -q "${service}:${VERSION}"; then
+              sudo docker save -o "./version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+            else
+              echo "Image ${service}:${VERSION} does not exist, skipping save."
+            fi
+          done
 
           # # # Change ownership of tar files to ensure permission
           # # sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
@@ -182,7 +178,8 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            VERSION=$(cat ~/devops/simplo-cine/version/version.txt)            
+            VERSION=$(cat ~/devops/simplo-cine/version/version.txt) 
+            echo "VERSION: $VERSION"           
             # Vérifier si le répertoire existe, sinon le cloner
             if [ ! -d ~/devops/simplo-cine ]; then
               mkdir -p ~/devops
@@ -197,6 +194,6 @@ jobs:
             sudo docker-compose down
 
             # Construire et démarrer les nouveaux conteneurs
-            sudo COMPOSE_DOCKER_CLI_BUILD=0 docker-compose build --parallel
             export VERSION=${VERSION}
+            sudo -E env "VERSION=${VERSION}" COMPOSE_DOCKER_CLI_BUILD=0 docker-compose build --parallel
             sudo -E env "VERSION=${VERSION}" docker-compose up -d
