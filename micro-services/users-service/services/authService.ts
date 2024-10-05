@@ -9,7 +9,7 @@ export class AuthService {
     username: string,
     email: string,
     password: string,
-    roleId: number
+    roleId?: number
   ) {
     try {
       const existingUser = await User.findOne({ where: { email } });
@@ -17,12 +17,12 @@ export class AuthService {
         throw new Error("Cet email est déjà utilisé");
       }
 
-      // Vérifier si le rôle existe
-      let role = await Role.findByPk(roleId);
-      
-        if (!role) {
-          throw new Error("Aucun rôle par défaut trouvé");
-        }
+    // Récupérer le rôle ayant le role_name "Admin"
+    let role = await Role.findOne({ where: { role_name: "Admin" } });
+
+    if (!role) {
+      throw new Error("Aucun rôle Admin trouvé");
+    }
       
 
       const hashedPassword = await bcrypt.hash(password, 10);
