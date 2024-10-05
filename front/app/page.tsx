@@ -87,51 +87,6 @@ export default function Home() {
 
   console.log("isAdmin", isAdmin());
 
-  // const handleUpdateMovie = async (updatedMovie: MovieAttributes) => {
-  //   try {
-  //     const response = await fetch(`/api/movies/${updatedMovie.id}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(updatedMovie),
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error("Erreur lors de la mise à jour du film");
-  //     }
-  //     const updatedMovieData = await response.json();
-  //     setMovies(
-  //       movies.map((movie) =>
-  //         movie.id === updatedMovieData.id ? updatedMovieData : movie
-  //       )
-  //     );
-  //   } catch (err: unknown) {
-  //     if (err instanceof Error) {
-  //       setError(err.message ?? `${error}` + "An unknown error occurred");
-  //     } else {
-  //       setError("An unknown error occurred");
-  //     }
-  //   }
-  // };
-
-  // const handleDeleteMovie = async (movieId: number) => {
-  //   try {
-  //     const response = await fetch(`/api/movies/${movieId}`, {
-  //       method: 'DELETE',
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error("Erreur lors de la suppression du film");
-  //     }
-  //     setMovies(movies.filter((movie) => movie.id !== movieId));
-  //   } catch (err: unknown) {
-  //     if (err instanceof Error) {
-  //       setError(err.message ?? `${error}` + "An unknown error occurred");
-  //     } else {
-  //       setError("An unknown error occurred");
-  //     }
-  //   }
-  // };
-
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const handleDateInputChange = async () => {
@@ -240,14 +195,12 @@ export default function Home() {
 
   return (
     <div>
-      <div className="flex justify-center bg-black">
+      <div className="flex justify-center bg-black relative h-[200px] w-full">
         <Image
           src="/AccueilSimplo.png"
           alt="Cinema"
-          height={200}
-          width={0}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          layout="responsive"
+          layout="fill"
+          objectFit="contain"
         />
       </div>
       {loading && (
