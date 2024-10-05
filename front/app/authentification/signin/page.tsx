@@ -50,7 +50,7 @@ export default function SignInPage() {
 
           // Extraire le rôle de l'utilisateur
           const userRole = sanitizeInput(decodedToken.role || "");
-          if (userRole === "admin") {
+          if (userRole === "Admin") {
             router.push("/dashboard/admin");
           } else {
             setError("You are not authorized to access the admin dashboard.");
