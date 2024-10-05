@@ -26,7 +26,7 @@ jobs:
           cd micro-services/movies-service
           npm install
           npm run test
-          npm audit
+          npm audit fix --force
 
       # - name: Run tests for search-service
       #   run: |
