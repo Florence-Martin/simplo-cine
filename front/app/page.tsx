@@ -245,7 +245,9 @@ export default function Home() {
           src="/AccueilSimplo.png"
           alt="Cinema"
           height={200}
-          layout="intrinsic"
+          width={0}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          layout="responsive"
         />
       </div>
       {loading && (
