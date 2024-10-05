@@ -244,7 +244,8 @@ export default function Home() {
         <Image
           src="/AccueilSimplo.png"
           alt="Cinema"
-          style={{ width: "auto", height: "200" }}
+          height={200}
+          layout="intrinsic"
         />
       </div>
       {loading && (
