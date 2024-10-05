@@ -1,7 +1,7 @@
 services:
   # Service Frontend (Next.js)
   front:
-    image: scalp852/front-app:${VERSION}
+    image: scalp852/front-app:1.0.0
     ports:
       - "3000:3000"
     networks:
@@ -14,7 +14,7 @@ services:
 
   # Service de gestion des films
   movies-service:
-    image: scalp852/movies-service:${VERSION}
+    image: scalp852/movies-service:1.0.0
     ports:
       - "3001:3000"
     depends_on:
@@ -47,7 +47,7 @@ services:
 
   # Service de notifications
   notifications-service:
-    image: scalp852/notifications-service:${VERSION}
+    image: scalp852/notifications-service:1.0.0
     ports:
       - "3003:3000"
     environment:
@@ -63,7 +63,7 @@ services:
 
   # Service de gestion des salles
   rooms-service:
-    image: scalp852/rooms-service:${VERSION}
+    image: scalp852/rooms-service:1.0.0
     ports:
       - "3004:3000"
     depends_on:
@@ -96,7 +96,7 @@ services:
 
   # Service de recherche
   search-service:
-    image: scalp852/search-service:${VERSION}
+    image: scalp852/search-service:1.0.0
     ports:
       - "3005:3000"
     depends_on:
@@ -129,7 +129,7 @@ services:
 
   # Service de gestion des sessions
   sessions-service:
-    image: scalp852/sessions-service:${VERSION}
+    image: scalp852/sessions-service:1.0.0
     ports:
       - "3006:3000"
     depends_on:
@@ -162,7 +162,7 @@ services:
 
   # Service de gestion des utilisateurs
   users-service:
-    image: scalp852/users-service:${VERSION}
+    image: scalp852/users-service:1.0.0
     ports:
       - "3007:3000"
     depends_on:
@@ -194,7 +194,7 @@ services:
       retries: 5
 
   prometheus:
-    image: scalp852/prometheus-service:${VERSION} 
+    image: scalp852/prometheus-service:1.0.0 
     ports:
       - "9090:9090"
     volumes:
@@ -216,7 +216,7 @@ services:
       
 # Service Nginx      
   nginx:
-    image: scalp852/nginx:${VERSION}
+    image: scalp852/nginx:1.0.0
     ports:
       - "8080:8080"
     networks:
