@@ -58,7 +58,7 @@ router.post("/register", authController.register);
  *       401:
  *         description: Identifiants incorrects
  */
-router.post("/login", authController.login);  // Utilisation cohérente de /login
+router.post("/signin", authController.login);  // Utilisation cohérente de /login
 
 /**
  * @swagger
