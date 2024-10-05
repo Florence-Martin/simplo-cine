@@ -13,7 +13,7 @@ import { CredentialsForm } from "@/app/components/authentification/CredentialFor
 
 // Interface pour représenter la structure du token décodé
 interface DecodedToken {
-  role: string;
+  role: any;
 }
 
 export default function SignInPage() {
@@ -40,7 +40,7 @@ export default function SignInPage() {
 
       if (response.status === 200) {
         const token = Cookies.get("authToken") || "";
-
+          console.log(token);
         if (token) {
           const decodedToken: DecodedToken = jwtDecode(token);
 
@@ -49,7 +49,7 @@ export default function SignInPage() {
           }
 
           // Extraire le rôle de l'utilisateur
-          const userRole = sanitizeInput(decodedToken.role || "");
+          const userRole = sanitizeInput(decodedToken.role.role_name || "");
           if (userRole === "Admin") {
             router.push("/dashboard/admin");
           } else {
