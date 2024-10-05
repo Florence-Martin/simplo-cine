@@ -1,8 +1,8 @@
 "use client";
 
+import moment from "moment";
 import { useState, useEffect } from "react";
 import { AiOutlineCheck, AiOutlineClose } from "react-icons/ai";
-import moment from "moment";
 
 import Card from "../../components/Card";
 import { AddHallCard } from "../../components/resources/AddHallCard";

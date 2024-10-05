@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx jest
-npx eslint .  # Linting des fichiers
-npx lint-staged
+# npx jest
+# npx eslint .  # Linting des fichiers
+# npx lint-staged

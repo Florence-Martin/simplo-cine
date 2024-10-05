@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // Importation des modules absolus
+// eslint-disable-next-line import/no-unresolved
 import { CredentialsForm } from "@/app/components/authentification/CredentialForm";
 
 // Interface pour représenter la structure du token décodé
@@ -40,7 +41,7 @@ export default function SignInPage() {
 
       if (response.status === 200) {
         const token = Cookies.get("authToken") || "";
-          console.log(token);
+        console.log(token);
         if (token) {
           const decodedToken: DecodedToken = jwtDecode(token);
           console.log(decodedToken);

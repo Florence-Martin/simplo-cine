@@ -1,6 +1,7 @@
 "use client";
 
-import jwt_decode from 'jwt-decode';
+// import { jwtDecode } from "jwt-decode";
+import Image from "next/image";
 import { Carousel, CarouselResponsiveOption } from "primereact/carousel";
 import { ProgressSpinner } from "primereact/progressspinner";
 import * as React from "react";
@@ -9,7 +10,6 @@ import { FaCalendarAlt } from "react-icons/fa";
 
 import Card from "./components/Card";
 import { assignRandomType } from "./utils/assignRandomType";
-import { MovieAttributes } from './types/types';
 
 interface Movie {
   id: number;
@@ -19,12 +19,12 @@ interface Movie {
   duration?: number;
 }
 
-interface DecodedToken {
-  id: number;
-  role: string;
-  iat: number;
-  exp: number;
-}
+// interface DecodedToken {
+//   id: number;
+//   role: string;
+//   iat: number;
+//   exp: number;
+// }
 
 export default function Home() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -35,82 +35,28 @@ export default function Home() {
 
   // Fonction pour récupérer un cookie par son nom
   const getCookieValue = (name: string): string | null => {
-    const cookies = document.cookie.split('; ');
+    const cookies = document.cookie.split("; ");
     const cookie = cookies.find((cookie) => cookie.startsWith(`${name}=`));
-    return cookie ? cookie.split('=')[1] : null;
+    return cookie ? cookie.split("=")[1] : null;
   };
   // Fonction pour décoder un JWT manuellement
   const decodeJWT = (token: string) => {
-    const payload = token.split('.')[1]; // Récupérer la 2ème partie du JWT (le payload)
+    const payload = token.split(".")[1]; // Récupérer la 2ème partie du JWT (le payload)
     const decodedPayload = atob(payload); // Décoder en base64
     return JSON.parse(decodedPayload); // Convertir en objet JavaScript
   };
   // Utiliser useEffect pour vérifier le token au chargement du composant
   useEffect(() => {
-    const authToken = getCookieValue('authToken');
+    const authToken = getCookieValue("authToken");
 
     if (authToken) {
       const decodedToken = decodeJWT(authToken);
-      console.log('Token décodé:', decodedToken); // Affiche les données du token
+      console.log("Token décodé:", decodedToken); // Affiche les données du token
 
       // Vérifier le rôle de l'utilisateur
       setUserRole(decodedToken.role);
     }
   }, []);
-
-  // const [moviesTest, setMoviesTest] = useState<Movie[]>([]);
-
-  // const generateMovies = (): Movie[] => {
-  //   const titles = [
-  //     "Movie 1",
-  //     "Movie 2",
-  //     "Movie 3",
-  //     "Movie 4",
-  //     "Movie 5",
-  //     "Movie 6",
-  //     "Movie 7",
-  //     "Movie 8",
-  //     "Movie 9",
-  //     "Movie 10",
-  //     "Movie 11",
-  //     "Movie 12",
-  //   ];
-
-  //   const descriptions = [
-  //     "Description for Movie 1",
-  //     "Description for Movie 2",
-  //     "Description for Movie 3",
-  //     "Description for Movie 4",
-  //     "Description for Movie 5",
-  //     "Description for Movie 6",
-  //     "Description for Movie 7",
-  //     "Description for Movie 8",
-  //     "Description for Movie 9",
-  //     "Description for Movie 10",
-  //     "Description for Movie 11",
-  //     "Description for Movie 12",
-  //   ];
-
-  //   const generateReleaseDate = (): string => {
-  //     const today = new Date();
-  //     const randomDays = Math.random() < 0.5 ? Math.floor(Math.random() * 2) + 1 : Math.floor(Math.random() * 10) + 11;
-  //     const releaseDate = new Date(today);
-  //     releaseDate.setDate(today.getDate() + randomDays);
-  //     return releaseDate.toISOString().split("T")[0];
-  //   };
-
-  //   return titles.map((title, index) => ({
-  //     id: index + 1,
-  //     title,
-  //     description: descriptions[index],
-  //     release_date: generateReleaseDate(),
-  //     duration: Math.floor(Math.random() * 120) + 60, // Random duration between 60 and 180 minutes
-  //   }));
-  // };
-
-  // useEffect(() => {
-  //   setMoviesTest(generateMovies());
-  // }, []);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -295,7 +241,7 @@ export default function Home() {
   return (
     <div>
       <div className="flex justify-center bg-black">
-        <img
+        <Image
           src="/AccueilSimplo.png"
           alt="Cinema"
           style={{ width: "auto", height: "200" }}
@@ -310,7 +256,9 @@ export default function Home() {
 
       {/* Section de recherche par date */}
       <div className="flex flex-col items-center mb-10">
-        <h2 className="text-2xl font-bold text-center mt-5 mb-10">Recherchez une séance par date pour voir les films disponibles</h2>
+        <h2 className="text-2xl font-bold text-center mt-5 mb-10">
+          Recherchez une séance par date pour voir les films disponibles
+        </h2>
         <div className="flex justify-center w-full">
           <div className="w-full max-w-2xl flex items-center justify-between space-x-4">
             <div className="w-1/2 flex flex-col items-start space-y-4">
@@ -342,27 +290,40 @@ export default function Home() {
       {error ? (
         <h2 className="text-2xl font-bold text-center mt-5 mb-10">{error}</h2>
       ) : movies.length === 0 ? (
-        <h2 className="text-2xl font-bold text-center mt-5 mb-10">Aucun film trouvé pour cette date.</h2>
-      ) : selectedDate && (
-        <div>
-          <h2 className="text-2xl font-bold text-center mt-5">Film du {selectedDate ? new Date(selectedDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</h2>
-          <div className="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-            {moviesWithDate.map((movie) => (
-              <Card
-                key={movie.id}
-                id={movie.id}
-                title={movie.title}
-                description={movie.description || 'No description available'}
-                type={assignRandomType(movie.id)}
-                release_date={movie.release_date}
-                duration={movie.duration}
-                created_at={new Date().toISOString()}
-                updated_at={new Date().toISOString()}
-                isAdmin={isAdmin}
-              />
-            ))}
+        <h2 className="text-2xl font-bold text-center mt-5 mb-10">
+          Aucun film trouvé pour cette date.
+        </h2>
+      ) : (
+        selectedDate && (
+          <div>
+            <h2 className="text-2xl font-bold text-center mt-5">
+              Film du{" "}
+              {selectedDate
+                ? new Date(selectedDate).toLocaleDateString("fr-FR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                : ""}
+            </h2>
+            <div className="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+              {moviesWithDate.map((movie) => (
+                <Card
+                  key={movie.id}
+                  id={movie.id}
+                  title={movie.title}
+                  description={movie.description || "No description available"}
+                  type={assignRandomType(movie.id)}
+                  release_date={movie.release_date}
+                  duration={movie.duration}
+                  created_at={new Date().toISOString()}
+                  updated_at={new Date().toISOString()}
+                  isAdmin={isAdmin}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )
       )}
       <hr className="border-t-2 border-gray-800 my-1 w-full" />
       <div className="bg-gray-800 py-4">
@@ -383,7 +344,9 @@ export default function Home() {
 
       <hr className="border-t-2 border-gray-800 mb-1 mt-20 w-full" />
       <div className="bg-gray-800 py-4">
-        <h2 className="text-2xl font-bold text-center text-white">CATÉGORIES</h2>
+        <h2 className="text-2xl font-bold text-center text-white">
+          CATÉGORIES
+        </h2>
       </div>
       <hr className="border-t-2 border-gray-800 my-1 w-full" />
       <hr className="border-t-2 border-gray-800 mt-4 mb-8 w-full" />
@@ -393,7 +356,10 @@ export default function Home() {
             (movie) => assignRandomType(movie.id) === type
           );
           return (
-            <div key={type} className="flex flex-col items-center w-1/5 min-w-[100px]">
+            <div
+              key={type}
+              className="flex flex-col items-center w-1/5 min-w-[100px]"
+            >
               <h2 className="text-2xl font-bold text-center my-4">{type}</h2>
               <div className="card flex justify-content-center">
                 <Carousel
