@@ -27,14 +27,23 @@ export class AuthController {
   // Connexion
   public async login(req: Request, res: Response): Promise<Response> {
     const { email, password } = req.body;
-
-    try {
-      const { token, user } = await authService.login(email, password);
-
-      return res.status(200).json({ message: "Connexion réussie", token, user });
-    } catch (error) {
-      const err = error as Error;
-      return res.status(401).json({ message: err.message });
+      try {
+        const { token, user } = await authService.login(email, password);
+        res.setHeader(
+          "Set-Cookie",
+          `authToken=${token}; Path=/; Max-Age=3600; SameSite=Lax`
+        );
+        return res.status(200).json({ token, user });
+      } catch (error) {
+        const err = error as Error;
+        return res
+          .status(
+            err.message === "Invalid password" || err.message === "User not found"
+              ? 401
+              : 500
+          )
+          .json({ message: err.message });
+      }
     }
-  }
+
 }
