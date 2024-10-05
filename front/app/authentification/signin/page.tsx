@@ -50,6 +50,7 @@ export default function SignInPage() {
 
           // Extraire le rôle de l'utilisateur
           const userRole = sanitizeInput(decodedToken.role.role_name || "");
+          console.log(userRole);
           if (userRole === "Admin") {
             router.push("/dashboard/admin");
           } else {
