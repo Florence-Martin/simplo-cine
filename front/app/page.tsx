@@ -241,12 +241,14 @@ export default function Home() {
   return (
     <div>
       <div className="flex justify-center bg-black">
-        <Image
-          src="/AccueilSimplo.png"
-          alt="Cinema"
-          style={{ width: "auto", height: "200" }}
-        />
-      </div>
+  <Image
+    src="/AccueilSimplo.png"
+    alt="Cinema"
+    width={800} 
+    height={200} 
+    style={{ width: "auto", height: "200" }}
+  />
+</div>
       {loading && (
         <div className="card flex justify-content-center">
           <ProgressSpinner />
