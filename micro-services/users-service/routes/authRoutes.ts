@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/authController";
+import { authenticateToken } from "../utils/verifToken"; 
 
 const router = Router();
 const authController = new AuthController();
@@ -25,7 +26,7 @@ const authController = new AuthController();
  *                 type: string
  *               role:
  *                 type: string
- *                 description: "Rôle de l'utilisateur (ex: admin, user)"  # Correction ici
+ *                 description: "Rôle de l'utilisateur (ex: admin, user)"
  *     responses:
  *       201:
  *         description: Utilisateur enregistré avec succès
@@ -57,7 +58,7 @@ router.post("/register", authController.register);
  *       401:
  *         description: Identifiants incorrects
  */
-router.post("/signin", authController.login);
+router.post("/login", authController.login);  // Utilisation cohérente de /login
 
 /**
  * @swagger
@@ -91,6 +92,13 @@ router.post("/signin", authController.login);
  *       401:
  *         description: Jeton invalide ou expiré
  */
-router.get("/verifyToken", authController.verifyToken);
+router.get("/verifyToken", authenticateToken, (req:any, res:any) => {
+  // Si le middleware passe, cela signifie que le token est valide
+  const user = (req as any).user; // Récupérer l'utilisateur du middleware
+  res.status(200).json({
+    valid: true,
+    userId: user.id, // Renvoie l'ID de l'utilisateur associé au token
+  });
+});
 
 export default router;

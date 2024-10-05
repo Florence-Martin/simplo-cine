@@ -8,7 +8,7 @@ interface UserAttributes {
   username: string;
   email: string;
   password: string;
-  role: Role;
+  roleId: number; 
   created_at?: Date;
   updated_at?: Date;
 }
@@ -25,10 +25,10 @@ class User
   public username!: string;
   public email!: string;
   public password!: string;
-  public role!: Role;
+  public roleId!: number; 
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
-  static init: any;
+  role: any;
 }
 
 User.init(
@@ -54,9 +54,13 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role: {
-      type: Role,
+    roleId: { 
+      type: DataTypes.INTEGER,
       allowNull: false,
+      references: { 
+        model: Role,
+        key: 'id',
+      },
     },
     created_at: {
       type: DataTypes.DATE,
@@ -78,5 +82,8 @@ User.init(
     updatedAt: "updated_at",
   }
 );
+
+
+User.belongsTo(Role, { foreignKey: "roleId", as: "role" });
 
 export default User;
