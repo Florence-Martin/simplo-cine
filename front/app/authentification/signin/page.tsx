@@ -43,7 +43,7 @@ export default function SignInPage() {
           console.log(token);
         if (token) {
           const decodedToken: DecodedToken = jwtDecode(token);
-
+          console.log(decodedToken);
           if (typeof decodedToken !== "object" || !decodedToken) {
             throw new Error("Invalid token format.");
           }
