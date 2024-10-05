@@ -100,16 +100,16 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:${VERSION}
 
         
-          cd ~/devops/simplo-cine/version
+          # cd ~/devops/simplo-cine/version
 
-          # Sauvegarder les images Docker avec la version taggée
-          for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
-            if sudo docker images -q "${service}:${VERSION}"; then
-              sudo docker save -o "./version/${service}_${VERSION}.tar" "${service}:${VERSION}"
-            else
-              echo "Image ${service}:${VERSION} does not exist, skipping save."
-            fi
-          done
+          # # Sauvegarder les images Docker avec la version taggée
+          # for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
+          #   if sudo docker images -q "${service}:${VERSION}"; then
+          #     sudo docker save -o "./version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+          #   else
+          #     echo "Image ${service}:${VERSION} does not exist, skipping save."
+          #   fi
+          # done
 
           # # # Change ownership of tar files to ensure permission
           # # sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
