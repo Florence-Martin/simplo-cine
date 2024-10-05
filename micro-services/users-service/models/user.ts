@@ -74,6 +74,6 @@ User.init(
 );
 
 
-User.belongsTo(Role, { foreignKey: "roleId", as: "role" });
+User.belongsTo(Role, { foreignKey: "roleId"});
 
 export default User;

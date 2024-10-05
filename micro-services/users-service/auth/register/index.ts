@@ -24,7 +24,7 @@ export async function register(req: Request, res: Response): Promise<Response> {
     if (!adminRole) {
       return res.status(500).json({ message: "Rôle 'admin' introuvable" });
     }
-
+    console.log(adminRole);
     // Créer l'utilisateur avec le rôle "admin"
     const newUser = await User.create({
       username,
@@ -38,7 +38,7 @@ export async function register(req: Request, res: Response): Promise<Response> {
       id: newUser.id,
       username: newUser.username,
       email: newUser.email,
-      role: adminRole, // Passer le nom du rôle pour le token
+      role: adminRole, 
     });
 
     return res.status(201).json({

@@ -40,8 +40,13 @@ export class UserService {
     username: string;
     email: string;
     password: string;
-    roleId: number;  // Utiliser roleId comme clé étrangère
+    roleId: any;  // Utiliser roleId comme clé étrangère
   }) {
+    const adminRole = await Role.findOne({ where: { role_name: 'Admin' } });
+    if (!adminRole) {
+      
+    }
+    data.roleId= adminRole?.id
     const hashedPassword = await hashPassword(data.password); // Hachage du mot de passe
     data.password = hashedPassword;
     try {
