@@ -197,6 +197,6 @@ jobs:
             sudo docker-compose down
 
             # Construire et démarrer les nouveaux conteneurs
-            sudo docker-compose build --parallel
+            sudo COMPOSE_DOCKER_CLI_BUILD=0 docker-compose build --parallel
             export VERSION=${VERSION}
             sudo -E env "VERSION=${VERSION}" docker-compose up -d
