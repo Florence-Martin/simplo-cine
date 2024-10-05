@@ -136,7 +136,7 @@ export default function Home() {
   }, []);
 
   const isAdmin = (): boolean => {
-    return userRole === "admin";
+    return userRole === "Admin";
   };
 
   console.log("isAdmin", isAdmin());
