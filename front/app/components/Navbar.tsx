@@ -17,7 +17,7 @@ import {
 
 // Interface pour le token décodé
 interface DecodedToken {
-  role: string;
+  role: any;
   exp: number;
 }
 
@@ -45,7 +45,7 @@ const useAuth = () => {
 
         // Mise à jour de l'état d'authentification
         setIsAuthenticated(true);
-        setIsAdmin(decodedToken.role === "admin");
+        setIsAdmin(decodedToken.role.role_name === "Admin");
       } catch (error) {
         console.error("Invalid token format", error);
         setIsAuthenticated(false);

@@ -54,7 +54,7 @@ export default function Home() {
       console.log("Token décodé:", decodedToken); // Affiche les données du token
 
       // Vérifier le rôle de l'utilisateur
-      setUserRole(decodedToken.role);
+      setUserRole(decodedToken.role.role_name);
     }
   }, []);
 
