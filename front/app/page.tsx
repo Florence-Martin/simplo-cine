@@ -195,12 +195,13 @@ export default function Home() {
 
   return (
     <div>
-      <div className="flex justify-center bg-black relative h-[200px] w-full">
+      <div className="flex justify-center bg-black">
         <Image
           src="/AccueilSimplo.png"
           alt="Cinema"
-          layout="fill"
-          objectFit="contain"
+          width={800}
+          height={200}
+          style={{ width: "auto", height: "200" }}
         />
       </div>
       {loading && (
@@ -256,10 +257,10 @@ export default function Home() {
               Film du{" "}
               {selectedDate
                 ? new Date(selectedDate).toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })
                 : ""}
             </h2>
             <div className="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
