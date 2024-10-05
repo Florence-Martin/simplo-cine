@@ -19,8 +19,8 @@ export async function register(req: Request, res: Response): Promise<Response> {
     // Hachage du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Récupérer l'ID du rôle "admin"
-    const adminRole = await Role.findOne({ where: { role_name: 'admin' } });
+    // Récupérer l'ID du rôle "Admin"
+    const adminRole = await Role.findOne({ where: { role_name: 'Admin' } });
     if (!adminRole) {
       return res.status(500).json({ message: "Rôle 'admin' introuvable" });
     }
