@@ -1,5 +1,5 @@
 // tester les fonctionnalités du userController, comme la récupération de la liste des utilisateurs et les détails d’un utilisateur spécifique.
-import request from "supertest";
+const request = require("supertest");
 import app from "../src/index";
 
 describe("User Controller", () => {

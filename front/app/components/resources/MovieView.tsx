@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 import {
-  FaArchive,
   FaEdit,
   FaTimes,
   FaChair,
@@ -8,6 +8,7 @@ import {
   FaCalendarAlt,
   FaInfoCircle,
   FaClock,
+  FaTrash,
 } from "react-icons/fa";
 
 import { HallAttributes, MovieAttributes } from "../../types/types";
@@ -17,8 +18,9 @@ interface MovieViewProps {
   onClose: () => void;
   movie: MovieAttributes;
   onModify: (updatedMovie: MovieAttributes) => void;
-  onArchive: () => void;
+  onDelete: () => void;
   availableHalls: HallAttributes[]; // Nouvelle prop pour les salles disponibles
+  isAdmin: () => boolean;
 }
 
 export const MovieView: React.FC<MovieViewProps> = ({
@@ -26,14 +28,20 @@ export const MovieView: React.FC<MovieViewProps> = ({
   onClose,
   movie,
   onModify,
-  onArchive,
+  onDelete,
   availableHalls = [],
+  isAdmin,
 }) => {
   const [title, setTitle] = useState(movie.title);
   const [description, setDescription] = useState(movie.description || "");
+
+  // Vérifier et convertir la date de sortie en objet Date valide
   const [releaseDate, setReleaseDate] = useState(
-    movie.release_date?.toISOString().substring(0, 10) || ""
+    movie.release_date
+      ? new Date(movie.release_date).toISOString().substring(0, 10)
+      : "" // Défaut à une chaîne vide si release_date est null ou invalide
   );
+
   const [duration, setDuration] = useState(movie.duration || 0);
   const [selectedHall, setSelectedHall] = useState<number | null>(
     movie.hall?.id || null
@@ -133,29 +141,34 @@ export const MovieView: React.FC<MovieViewProps> = ({
           </div>
         </div>
         <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse">
-          {isEditing ? (
-            <button
-              onClick={handleModify}
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Valider la modification
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="w-full flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm items-center"
-            >
-              <FaEdit className="mr-2 text-white" />
-              Modifier
-            </button>
+          {isAdmin() && (
+            <>
+              {isEditing ? (
+                <button
+                  onClick={handleModify}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Valider la modification
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="w-full flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm items-center"
+                >
+                  <FaEdit className="mr-2 text-white" />
+                  Modifier
+                </button>
+              )}
+              <button
+                onClick={onDelete}
+                className="w-full flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm items-center"
+              >
+                <FaTrash className="mr-2 text-white" />
+                Supprimer
+              </button>
+            </>
           )}
-          <button
-            onClick={onArchive}
-            className="w-full flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm items-center"
-          >
-            <FaArchive className="mr-2 text-white" />
-            Archiver
-          </button>
+
           <button
             onClick={onClose}
             className="mt-3 w-full flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm items-center"

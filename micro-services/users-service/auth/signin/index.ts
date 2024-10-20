@@ -22,7 +22,7 @@ export async function signin(req: Request, res: Response): Promise<Response> {
     }
 
     // Générer le token
-    const token = generateToken(user.id, user.role);
+    const token = generateToken(user.id, user.role.role_name);
 
     return res.status(200).json({
       message: "Connexion réussie",

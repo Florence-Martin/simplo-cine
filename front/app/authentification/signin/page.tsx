@@ -6,14 +6,15 @@ import DOMPurify from "dompurify";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState } from "react";
 
 // Importation des modules absolus
+// eslint-disable-next-line import/no-unresolved
 import { CredentialsForm } from "@/app/components/authentification/CredentialForm";
 
 // Interface pour représenter la structure du token décodé
 interface DecodedToken {
-  role: string;
+  role: any;
 }
 
 export default function SignInPage() {
@@ -40,17 +41,18 @@ export default function SignInPage() {
 
       if (response.status === 200) {
         const token = Cookies.get("authToken") || "";
-
+        console.log(token);
         if (token) {
           const decodedToken: DecodedToken = jwtDecode(token);
-
+          console.log(decodedToken);
           if (typeof decodedToken !== "object" || !decodedToken) {
             throw new Error("Invalid token format.");
           }
 
           // Extraire le rôle de l'utilisateur
-          const userRole = sanitizeInput(decodedToken.role || "");
-          if (userRole === "admin") {
+          const userRole = sanitizeInput(decodedToken.role.role_name || "");
+          console.log(userRole);
+          if (userRole === "Admin") {
             router.push("/dashboard/admin");
           } else {
             setError("You are not authorized to access the admin dashboard.");

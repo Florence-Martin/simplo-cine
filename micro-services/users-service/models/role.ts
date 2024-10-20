@@ -34,17 +34,8 @@ Role.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      allowNull: false,
-    },
+    }
+   
   },
   {
     sequelize,

@@ -1,37 +1,60 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { MdPeople, MdRoom } from "react-icons/md";
 
-import { HallAttributes } from "../../types/types";
-
-interface AddHallCardProps {
-  onAddHall: (newHall: HallAttributes) => void;
+// Utilisation de l'interface correspondant aux attributs du modèle `Room`
+interface RoomAttributes {
+  room_id?: number; // Peut être optionnel car il est généré par la BDD
+  name: string;
+  seatsNumber: number;
+  available?: boolean;
 }
 
-export const AddHallCard: React.FC<AddHallCardProps> = ({ onAddHall }) => {
+interface AddHallCardProps {
+  onAddHall: (newHall: RoomAttributes) => void;
+  halls: RoomAttributes[];
+}
+
+export const AddHallCard: React.FC<AddHallCardProps> = ({
+  onAddHall,
+  halls,
+}) => {
   const [name, setName] = useState("");
   const [capacity, setCapacity] = useState<number | null>(null);
 
-  // Deux salles créées en dur
-  const initialHalls: HallAttributes[] = [
-    { id: 1, name: "Salle 1 - IMAX", capacity: 150 },
-    { id: 2, name: "Salle 2 - 4DX", capacity: 100 },
-  ];
-
-  const [halls, setHalls] = useState<HallAttributes[]>(initialHalls);
-
-  const handleAdd = () => {
-    if (name && capacity) {
-      const newHall: HallAttributes = {
-        id: Math.random(),
+  const handleAdd = async () => {
+    if (name && capacity !== null) {
+      const newHall: RoomAttributes = {
         name,
-        capacity,
+        seatsNumber: capacity,
+        available: true,
       };
-      setHalls([...halls, newHall]);
-      onAddHall(newHall);
+
+      try {
+        const response = await fetch("/api/rooms", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newHall),
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            "Erreur lors de l'ajout de la salle à la base de données."
+          );
+        }
+
+        const addedHall = await response.json();
+        onAddHall(addedHall); // Mise à jour de l'état local avec la salle ajoutée
+        console.log("Salle ajoutée avec succès:", addedHall);
+      } catch (err) {
+        console.error("Erreur lors de l'ajout de la salle :", err);
+      }
+
       setName("");
       setCapacity(null);
     } else {
-      alert("Veuillez remplir tous les champs requis.");
+      console.warn("Veuillez remplir tous les champs requis.");
     }
   };
 
@@ -61,7 +84,7 @@ export const AddHallCard: React.FC<AddHallCardProps> = ({ onAddHall }) => {
         </label>
         <input
           type="number"
-          className="w-full text-gray-900  px-3 py-2 border rounded-md"
+          className="w-full text-gray-900 px-3 py-2 border rounded-md"
           value={capacity !== null ? capacity : ""}
           onChange={(e) => setCapacity(Number(e.target.value))}
           placeholder="Capacité"
@@ -81,8 +104,9 @@ export const AddHallCard: React.FC<AddHallCardProps> = ({ onAddHall }) => {
         </h3>
         <ul>
           {halls.map((hall) => (
-            <li key={hall.id} className="mb-2">
-              <strong>{hall.name}</strong> - Capacité : {hall.capacity} places
+            <li key={hall.room_id} className="mb-2">
+              <strong>{hall.name}</strong> - Capacité : {hall.seatsNumber}{" "}
+              places
             </li>
           ))}
         </ul>

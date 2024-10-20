@@ -1,7 +1,3 @@
-// types.ts
-
-// import { iconType } from "../page";
-
 // Interface générale pour les attributs d'une entité
 export interface BaseAttributes {
   id: number;
@@ -9,10 +5,17 @@ export interface BaseAttributes {
   updated_at?: Date;
 }
 
-// Interface pour les salles (Halls)
-export interface HallAttributes extends BaseAttributes {
+// Définissez les RoomAttributes sans id obligatoire
+export interface RoomAttributes {
+  room_id?: number; // Peut être optionnel, généré par la BDD
   name: string;
-  capacity: number;
+  seatsNumber: number;
+  available?: boolean;
+}
+
+// HallAttributes étend RoomAttributes et ajoute un identifiant unique obligatoire
+export interface HallAttributes extends RoomAttributes {
+  id: number; // Utilisé pour l'identification dans l'application
 }
 
 // Interface pour les films (Movies)
@@ -22,6 +25,7 @@ export interface MovieAttributes extends BaseAttributes {
   release_date?: Date;
   duration?: number;
   poster?: File | null;
+  hall_id?: number;
   hall?: HallAttributes;
 }
 
@@ -32,8 +36,14 @@ export interface ScreeningAttributes extends BaseAttributes {
   date: Date;
   startTime: string;
   duration: number;
+  endTime: string;
+  spectatorsCount: number;
 }
 
+// Si l'interface Screening est la même que ScreeningAttributes, vous pouvez simplement faire :
+export type Screening = ScreeningAttributes;
+
+// Interface pour les événements du calendrier
 export interface MovieEvent {
   id: number;
   title: string;
@@ -52,5 +62,4 @@ export interface Movie {
   duration?: number;
   created_at: string;
   updated_at: string;
-  // icon: iconType[]; // Liste d'icônes
 }

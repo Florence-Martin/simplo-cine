@@ -55,6 +55,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", rolesRoutes);
 
+// Endpoint health
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Middleware de gestion des erreurs globales
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);

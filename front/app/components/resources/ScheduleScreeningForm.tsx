@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import * as React from "react";
 import {
   FaFilm,
   FaChair,
@@ -7,48 +7,33 @@ import {
   FaHourglassStart,
 } from "react-icons/fa";
 
-import { HallAttributes, MovieAttributes } from "../../types/types";
-
-interface Screening {
-  movieId: number;
-  hallId: number;
-  date: Date;
-  startTime: string;
-  duration: number;
-}
+import { useScreeningForm } from "../../hooks/useScreeningForm"; // Importation du hook personnalisé
+import {
+  HallAttributes,
+  MovieAttributes,
+  Screening,
+  ScreeningAttributes,
+} from "../../types/types";
 
 export const ScheduleScreeningForm: React.FC<{
   movies: MovieAttributes[];
   halls: HallAttributes[];
-  onSchedule: (screening: Screening) => void;
-}> = ({ movies, halls, onSchedule }) => {
-  const [movieId, setMovieId] = useState<number | null>(null);
-  const [hallId, setHallId] = useState<number | null>(null);
-  const [date, setDate] = useState<string>("");
-  const [startTime, setStartTime] = useState<string>("");
-  const [duration, setDuration] = useState<number>(120);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (movieId && hallId && date && startTime) {
-      const screening = {
-        movieId,
-        hallId,
-        date: new Date(`${date}T${startTime}:00`),
-        startTime,
-        duration,
-      };
-      onSchedule(screening);
-      // Clear form after submission
-      setMovieId(null);
-      setHallId(null);
-      setDate("");
-      setStartTime("");
-      setDuration(120);
-    } else {
-      alert("Veuillez remplir tous les champs requis.");
-    }
-  };
+  onSchedule: (screening: Omit<Screening, "id">) => void;
+  existingScreenings: ScreeningAttributes[]; // Ajustement du type ici
+}> = ({ movies, halls, onSchedule, existingScreenings }) => {
+  const {
+    movieId,
+    setMovieId,
+    hallId,
+    setHallId,
+    date,
+    setDate,
+    startTime,
+    setStartTime,
+    duration,
+    setDuration,
+    handleSubmit,
+  } = useScreeningForm(movies, halls, existingScreenings, onSchedule);
 
   return (
     <div className="w-full bg-white p-6 rounded-lg shadow-md mb-8">

@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import Image from 'next/image';
+import * as React from "react";
 
-import Image from 'next/image'; 
 
 interface ImageProps {
   src: string;
@@ -13,11 +13,11 @@ interface ImageProps {
 }
 
 const MovieImage: React.FC<ImageProps> = ({ src, alt, width = 300, height = 300, className = "" }) => {
-  const defaultImage = "/testMovieImage.jpg"; 
+  const defaultImage = "/testMovieImage.jpg";
 
   return (
     <Image
-      src={src || defaultImage} 
+      src={src || defaultImage}
       alt={alt}
       width={width}
       height={height}

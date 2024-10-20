@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Build, Test and Deploy
 
 on:
   push:
@@ -6,72 +6,194 @@ on:
       - develop
 
 jobs:
-  deploy-on-vps:
+  # Étape de tests unitaires pour tous les microservices
+  run_tests_microservices:
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Test pour chaque microservice
+      # - name: Run tests for users-service
+      #   run: |
+      #     cd micro-services/users-service
+      #     npm install
+      #     npm run test
+
+      - name: Run tests for movies-service
+        run: |
+          cd micro-services/movies-service
+          npm install
+          npm run test
+          npm audit || true
+
+      # - name: Run tests for search-service
+      #   run: |
+      #     cd micro-services/search-service
+      #     npm install
+      #     npm run test
+
+      # - name: Run tests for sessions-service
+      #   run: |
+      #     cd micro-services/sessions-service
+      #     npm install
+      #     npm run test
+
+      # - name: Run tests for rooms-service
+      #   run: |
+      #     cd micro-services/rooms-service
+      #     npm install
+      #     npm run test
+
+      # - name: Run tests for notifications-service
+      #   run: |
+      #     cd micro-services/notifications-service
+      #     npm install
+      #     npm run test
+
+      # - name: Run tests for front-app
+      #   run: |
+      #     cd front
+      #     npm install
+      #     npm run test
+
+  # Étape de construction et de publication des images Docker
+  build_and_push_docker_images:
+    runs-on: ubuntu-latest
+    needs: run_tests_microservices
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker images
+        run: |
+          # Build Docker images and tag them with the version
+          VERSION=$(cat ./version/version.txt)
+          echo "VERSION: $VERSION"
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/users-service:${VERSION} ./micro-services/users-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:${VERSION} ./micro-services/movies-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/search-service:${VERSION} ./micro-services/search-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${VERSION} ./micro-services/sessions-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:${VERSION} ./micro-services/rooms-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:${VERSION} ./micro-services/notifications-service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/front-app:${VERSION} ./front
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:${VERSION} ./monitoring/prometheus
+
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/users-service:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/movies-service:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/search-service:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rooms-service:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notifications-service:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/front-app:${VERSION}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/prometheus-service:${VERSION}
+
+        
+          # cd ~/devops/simplo-cine/version
+
+          # # Sauvegarder les images Docker avec la version taggée
+          # for service in movies-service notifications-service rooms-service search-service sessions-service users-service front; do
+          #   if sudo docker images -q "${service}:${VERSION}"; then
+          #     sudo docker save -o "./version/${service}_${VERSION}.tar" "${service}:${VERSION}"
+          #   else
+          #     echo "Image ${service}:${VERSION} does not exist, skipping save."
+          #   fi
+          # done
+
+          # # # Change ownership of tar files to ensure permission
+          # # sudo chown -R adminlocal:adminlocal ~/devops/simplo-cine/version
+
+          # # # Commit and push the .tar files
+          # # cd ~/devops/simplo-cine/version
+          # # if [ "$(ls *.tar 2>/dev/null)" ]; then
+          # #   git add .
+          # #   git commit -m "Add Docker images version ${VERSION}" || echo "No changes to commit."
+          # #   git push origin develop || echo "Failed to push changes."
+          # # else
+          # #   echo "No .tar files to commit."
+          # # fi
+
+      - name: Build and push Nginx image
+        run: |
+          # Lire le fichier de version
+          VERSION=$(cat ./version/version.txt)
+
+          # Afficher la version pour vérification
+          echo "Building Nginx with version: $VERSION"
+
+          # Construire et pousser l'image Docker avec la version
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION ./api/nginx
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx:$VERSION
+
+  # Étape de nettoyage des anciens conteneurs et réseau sur le VPS
+  cleanup_and_prepare_vps:
+    runs-on: ubuntu-latest
+    needs: build_and_push_docker_images
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy to VPS
+      - name: Clean up Docker containers and networks on VPS
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: 45.81.84.133
-          username: "adminlocal"
-          password: "cdadevops2024"
-          port: 9049
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
-            # Arrêter tous les conteneurs s'ils existent
             containers=$(sudo docker ps -q)
             if [ -n "$containers" ]; then
               sudo docker stop $containers
             fi
 
-            # Supprimer tous les conteneurs + network s'ils existent
             containers=$(sudo docker ps -a -q)
             if [ -n "$containers" ]; then
               sudo docker rm $containers
-              # Supprime le network custom
               sudo docker network rm simplo-cine_simplo-cine-network
             fi
 
+            sudo docker image prune -a -f
+
+  # Étape de déploiement avec Docker Compose
+  deploy_application_on_vps:
+    runs-on: ubuntu-latest
+    needs: cleanup_and_prepare_vps
+    steps:
+      - name: Deploy the application
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            VERSION=$(cat ~/devops/simplo-cine/version/version.txt) 
+            echo "VERSION: $VERSION"           
             # Vérifier si le répertoire existe, sinon le cloner
             if [ ! -d ~/devops/simplo-cine ]; then
               mkdir -p ~/devops
               git clone --branch develop https://github.com/Florence-Martin/simplo-cine ~/devops/simplo-cine
             else
               cd ~/devops/simplo-cine
-              # Réinitialiser les changements locaux à l'état de la branche distante
-              git pull origin develop
+              git fetch origin develop
+              git reset --hard origin/develop
             fi
 
-  build-and-run-on-vps:
-    runs-on: ubuntu-latest
-    needs: deploy-on-vps
-
-    steps:
-      - name: Build Docker Containers
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: 45.81.84.133
-          username: "adminlocal"
-          password: "cdadevops2024"
-          port: 9049
-          script: |
-            cd ~/devops/simplo-cine
-            sudo docker network rm simplo-cine_simplo-cine-network
+            # Arrêter et supprimer les conteneurs existants
             sudo docker-compose down
-            sudo docker-compose build --parallel
 
-      - name: Start Docker Containers
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: 45.81.84.133
-          username: "adminlocal"
-          password: "cdadevops2024"
-          port: 9049
-          script: |
-            cd ~/devops/simplo-cine
-            sudo docker network rm simplo-cine_simplo-cine-network
-            sudo docker-compose up --build -d
-
+            # Construire et démarrer les nouveaux conteneurs
+            export VERSION=${VERSION}
+            sudo -E env "VERSION=${VERSION}" COMPOSE_DOCKER_CLI_BUILD=0 docker-compose build --parallel
+            sudo -E env "VERSION=${VERSION}" docker-compose up -d

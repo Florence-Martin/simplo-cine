@@ -1,9 +1,11 @@
 "use client";
 
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import * as React from "react";
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import {
   FaHome,
   FaSignInAlt,
@@ -13,11 +15,49 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 
-const useAuth = () => {
-  const [isAuthenticated] = useState(true); // Change à true si l'utilisateur est connecté
-  const [isAdmin] = useState(true); // Change à true si l'utilisateur est admin
+// Interface pour le token décodé
+interface DecodedToken {
+  role: any;
+  exp: number;
+}
 
-  // Ici, tu peux utiliser un hook réel ou une API pour récupérer ces informations
+// Hook d'authentification pour vérifier l'état de l'utilisateur
+const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Récupérer le token depuis les cookies
+    const token = Cookies.get("authToken");
+
+    if (token) {
+      try {
+        // Décoder le token pour récupérer le rôle
+        const decodedToken: DecodedToken = jwtDecode(token);
+
+        // Vérification de l'expiration du token
+        if (Date.now() >= decodedToken.exp * 1000) {
+          console.warn("Token expired");
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          return;
+        }
+
+        // Mise à jour de l'état d'authentification
+        setIsAuthenticated(true);
+        setIsAdmin(decodedToken.role.role_name === "Admin");
+      } catch (error) {
+        console.error("Invalid token format", error);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+      }
+    } else {
+      // Aucun token n'est présent, mettre à jour les états
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+    }
+  }, []);
+
   return { isAuthenticated, isAdmin };
 };
 
@@ -25,7 +65,16 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated, isAdmin } = useAuth();
+
+  // Utiliser un effet pour surveiller les changements dans isAuthenticated ou isAdmin
+  useEffect(() => {
+    // Redirigez vers la page de connexion si l'utilisateur n'est pas authentifié
+    if (!isAuthenticated && pathname === "/dashboard/admin") {
+      router.push("/authentification/signin");
+    }
+  }, [isAuthenticated, pathname, router]);
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -66,15 +115,32 @@ export default function Navbar() {
       </div>
 
       <div className="hidden md:flex space-x-4 text-white">
-        <div className="flex items-center">
-          <Link
-            href="/authentification/signin"
-            className="flex items-center text-white hover:underline"
-          >
-            <FaSignInAlt className="text-white" />
-            <span className="ml-2">Admin</span>
-          </Link>
-        </div>
+        {!isAuthenticated ? (
+          // Lien de connexion si l'utilisateur n'est pas connecté
+          <div className="flex items-center">
+            <Link
+              href="/authentification/signin"
+              className="flex items-center text-white hover:underline"
+            >
+              <FaSignInAlt className="text-white" />
+              <span className="ml-2">Administrateur</span>
+            </Link>
+          </div>
+        ) : (
+          // Affichage du bouton "Ajout nouvel admin" si l'utilisateur est connecté, est admin et est sur le dashboard admin
+          isAdmin &&
+          pathname === "/dashboard/admin" && (
+            <div className="flex items-center">
+              <Link
+                href="/authentification/register"
+                className="flex items-center text-white hover:underline"
+              >
+                <FaUserPlus className="text-white" />
+                <span className="ml-2">Ajout nouvel admin</span>
+              </Link>
+            </div>
+          )
+        )}
       </div>
 
       <div className="md:hidden flex items-center">
@@ -102,22 +168,27 @@ export default function Navbar() {
           </form>
 
           <div className="flex flex-col items-start space-y-4 px-4 mt-4">
-            <Link
-              href="/authentification/signin"
-              className="flex items-center hover:underline"
-            >
-              <FaSignInAlt />
-              <span className="ml-2">Admin</span>
-            </Link>
-            {/* Affichage du lien Signup dans le menu mobile */}
-            {isAuthenticated && isAdmin && (
+            {!isAuthenticated ? (
+              // Lien de connexion dans le menu mobile
               <Link
-                href="/authentification/signup"
+                href="/authentification/signin"
                 className="flex items-center hover:underline"
               >
-                <FaUserPlus />
-                <span className="ml-2">Signup</span>
+                <FaSignInAlt />
+                <span className="ml-2">Administrateur</span>
               </Link>
+            ) : (
+              // Affichage du lien Register si l'utilisateur est connecté, est admin et est sur le dashboard admin
+              isAdmin &&
+              pathname === "/dashboard/admin" && (
+                <Link
+                  href="/authentification/register"
+                  className="flex items-center hover:underline"
+                >
+                  <FaUserPlus />
+                  <span className="ml-2">Ajout nouvel admin</span>
+                </Link>
+              )
             )}
           </div>
         </div>

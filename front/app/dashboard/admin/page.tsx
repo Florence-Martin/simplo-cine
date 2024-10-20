@@ -1,120 +1,270 @@
-// /* eslint-disable @typescript-eslint/no-unused-vars */
-
 "use client";
 
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { AiOutlineCheck, AiOutlineClose } from "react-icons/ai";
 
-import { AddHallCard } from "@/app/components/resources/AddHallCard";
-import { AddMovieCard } from "@/app/components/resources/AddMovieCard";
-import { MovieView } from "@/app/components/resources/MovieView";
-import { ScheduleScreeningForm } from "@/app/components/resources/ScheduleScreeningForm";
-
+import Card from "../../components/Card";
+import { AddHallCard } from "../../components/resources/AddHallCard";
+import { AddMovieCard } from "../../components/resources/AddMovieCard";
 import { MovieCalendar } from "../../components/resources/MovieCalendar";
-import { MovieCard } from "../../components/resources/MovieTable";
-
-interface MovieAttributes {
-  id: number;
-  title: string;
-  description?: string;
-  release_date?: Date;
-  duration?: number;
-  created_at?: Date;
-  updated_at?: Date;
-  poster?: File | null;
-}
-
-interface HallAttributes {
-  id: number;
-  name: string;
-  capacity: number;
-}
+import { MovieView } from "../../components/resources/MovieView";
+import { ScheduleScreeningForm } from "../../components/resources/ScheduleScreeningForm";
+import {
+  MovieAttributes,
+  HallAttributes,
+  MovieEvent,
+  RoomAttributes,
+  ScreeningAttributes,
+} from "../../types/types";
+import { assignRandomType } from "../../utils/assignRandomType";
 
 export default function AdminDashboard() {
   const [movies, setMovies] = useState<MovieAttributes[]>([]);
   const [halls, setHalls] = useState<HallAttributes[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [screenings, setScreenings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [screenings, setScreenings] = useState<ScreeningAttributes[]>([]);
+  const [events, setEvents] = useState<MovieEvent[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieAttributes | null>(
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
-  // useEffect(() => {
-  //   const fetchMovies = async () => {
-  //     try {
-  //       const response = await fetch("/api/movies");
-  //       if (!response.ok) {
-  //         throw new Error("Erreur lors du fetch des films");
-  //       }
-  //       const data = await response.json();
-  //       setMovies(data);
-  //     } catch (err) {
-  //       if (err instanceof Error) {
-  //         setError(err.message);
-  //       } else {
-  //         setError("Une erreur inconnue est survenue");
-  //       }
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchMovies();
-  // }, []);
-
+  // Fetch initial pour récupérer les données
   useEffect(() => {
-    // Données en dur pour tester le calendrier, avec des dates au format `Date` au lieu de `string`
-    const hardCodedMovies: MovieAttributes[] = [
-      {
-        id: 1,
-        title: "Inception",
-        description:
-          "Dom Cobb est un voleur expérimenté dans l'art périlleux de l'extraction : sa spécialité consiste à s'approprier les secrets les plus précieux d'un individu...",
-        release_date: new Date("2024-09-22T06:00:00Z"),
-        duration: 180,
-        created_at: new Date("2024-09-20T00:00:00Z"),
-        updated_at: new Date("2024-09-20T00:00:00Z"),
-      },
-      {
-        id: 2,
-        title: "Flight to Paris",
-        description: "Vol de JFK à CDG",
-        release_date: new Date("2024-09-22T07:30:00Z"),
-        duration: 120,
-        created_at: new Date("2024-09-20T00:00:00Z"),
-        updated_at: new Date("2024-09-20T00:00:00Z"),
-      },
-      {
-        id: 3,
-        title: "Sightseeing",
-        description: "Visite de la Tour Eiffel",
-        release_date: new Date("2024-09-22T11:00:00Z"),
-        duration: 90,
-        created_at: new Date("2024-09-20T00:00:00Z"),
-        updated_at: new Date("2024-09-20T00:00:00Z"),
-      },
-    ];
-
-    setMovies(hardCodedMovies);
-    setLoading(false);
+    fetchData("/api/movies", setMovies, "Erreur lors du fetch des films");
+    fetchData(
+      "/api/rooms",
+      setHalls,
+      "Erreur lors de la récupération des salles."
+    );
+    fetchData(
+      "/api/sessions",
+      setScreenings,
+      "Erreur lors de la récupération des séances."
+    );
   }, []);
 
-  const events = movies.map((movie) => ({
-    id: movie.id,
+  // Un seul useEffect pour mettre à jour les événements
+  useEffect(() => {
+    const movieEvents = movies.map((movie) => {
+      const releaseDate = new Date(movie.release_date || "");
+      const start = isNaN(releaseDate.getTime()) ? new Date() : releaseDate;
+
+      return {
+        id: movie.id,
+        title: movie.title,
+        start: start,
+        end: new Date(
+          moment(start)
+            .add(movie.duration || 120, "minutes")
+            .toDate()
+        ),
+        desc: movie.description || "",
+      };
+    });
+
+    const screeningEvents = screenings
+      .map((screening) => {
+        const movie = movies.find((m) => m.id === screening.movieId);
+        if (!movie) return null;
+        return createEvent(screening, movie);
+      })
+      .filter(Boolean) as MovieEvent[];
+
+    setEvents([...movieEvents, ...screeningEvents]);
+  }, [movies, screenings]);
+
+  // Récupération des données générique
+  const fetchData = async (
+    url: string,
+    setData: React.Dispatch<React.SetStateAction<any>>,
+    errorMessage: string
+  ) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(errorMessage);
+      const data = await response.json();
+      setData(data);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur inconnue s'est produite"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Créer un événement de calendrier
+  const createEvent = (
+    screening: ScreeningAttributes,
+    movie: MovieAttributes
+  ): MovieEvent => ({
+    id: screening.id,
     title: movie.title,
-    start: new Date(movie.release_date || movie.created_at || ""),
+    start: new Date(
+      `${screening.date.toISOString().split("T")[0]}T${screening.startTime}`
+    ),
     end: new Date(
-      moment(movie.release_date || movie.created_at)
-        .add(movie.duration || 120, "minutes")
-        .toDate()
+      `${screening.date.toISOString().split("T")[0]}T${screening.endTime}`
     ),
     desc: movie.description || "",
-  }));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSelectEvent = (event: any) => {
+  });
+
+  // Gérer l'ajout d'un film
+  const handleAddMovie = async (newMovie: MovieAttributes) => {
+    if (!newMovie.title || !newMovie.release_date || !newMovie.duration) {
+      setError("Veuillez remplir tous les champs requis.");
+      return;
+    }
+
+    const addedMovie = await handleApiRequest(
+      "/api/movies",
+      "POST",
+      newMovie,
+      setMovies,
+      "Le film a été ajouté avec succès !"
+    );
+
+    if (addedMovie) {
+      const defaultEvent: MovieEvent = {
+        id: addedMovie.id,
+        title: addedMovie.title,
+        start: new Date(addedMovie.release_date),
+        end: new Date(
+          moment(new Date(addedMovie.release_date))
+            .add(addedMovie.duration || 120, "minutes")
+            .toDate()
+        ),
+        desc: addedMovie.description || "Aucune description",
+      };
+
+      setEvents((prevEvents) => [...prevEvents, defaultEvent]);
+    }
+  };
+
+  // Gérer l'ajout d'une salle
+  const handleAddHall = (newHall: RoomAttributes) => {
+    const hallWithId: HallAttributes = {
+      ...newHall,
+      id: newHall.room_id || Date.now(),
+    };
+    setHalls((prevHalls) => [...prevHalls, hallWithId]);
+    showToastMessage("La salle a été ajoutée avec succès !");
+  };
+
+  // Gérer la planification d'une séance
+  const handleSchedule = async (
+    newScreening: Omit<ScreeningAttributes, "id">
+  ) => {
+    const body = {
+      ...newScreening,
+      heure_debut: newScreening.startTime,
+      heure_fin: newScreening.endTime,
+      nb_spectateurs: newScreening.spectatorsCount || 0,
+    };
+
+    const addedScreening = await handleApiRequest(
+      "/api/sessions",
+      "POST",
+      body,
+      setScreenings,
+      "Séance planifiée avec succès !"
+    );
+
+    if (addedScreening) {
+      const movie = movies.find((m) => m.id === newScreening.movieId);
+      if (movie)
+        setEvents((prevEvents) => [
+          ...prevEvents,
+          createEvent(addedScreening, movie),
+        ]);
+    }
+  };
+
+  // Gérer la modification d'un film
+  const handleModifyMovie = async (updatedMovie: MovieAttributes) => {
+    const updated = await handleApiRequest(
+      `/api/movies/${updatedMovie.id}`,
+      "PUT",
+      updatedMovie,
+      (movies) =>
+        setMovies(
+          movies.map((movie: MovieAttributes) =>
+            movie.id === updatedMovie.id ? updatedMovie : movie
+          )
+        ),
+      "Le film a été mis à jour avec succès !"
+    );
+
+    if (updated) setIsModalOpen(false);
+  };
+
+  // Gérer la suppression d'un film
+  const handleDeleteMovie = async () => {
+    if (!selectedMovie) return;
+    const deleted = await handleApiRequest(
+      `/api/movies/${selectedMovie.id}`,
+      "DELETE",
+      {},
+      (movies) =>
+        setMovies(
+          movies.filter(
+            (movie: MovieAttributes) => movie.id !== selectedMovie.id
+          )
+        ),
+      "Le film a été supprimé avec succès."
+    );
+
+    if (deleted) {
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== selectedMovie.id)
+      );
+      handleCloseModal();
+    }
+  };
+
+  // Gestion des requêtes API
+  const handleApiRequest = async (
+    url: string,
+    method: string,
+    body: any,
+    updateState: React.Dispatch<React.SetStateAction<any>>,
+    successMessage: string
+  ) => {
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) throw new Error("Erreur lors de la requête.");
+
+      const data = await response.json();
+      updateState((prevState: any) => [...prevState, data]);
+      showToastMessage(successMessage);
+      return data;
+    } catch (err) {
+      console.error("Erreur lors de l'opération :", err);
+      setError(
+        `Une erreur s'est produite : ${err instanceof Error ? err.message : "Erreur inconnue"}`
+      );
+      return null;
+    }
+  };
+
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+  };
+
+  const handleSelectEvent = (event: MovieEvent) => {
     const movie = movies.find((m) => m.id === event.id);
     if (movie) {
       setSelectedMovie(movie);
@@ -122,45 +272,31 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddMovie = (newMovie: MovieAttributes) => {
-    setMovies([...movies, newMovie]);
-  };
-
-  const handleAddHall = (newHall: HallAttributes) => {
-    setHalls([...halls, newHall]);
-  };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleScheduleScreening = (newScreening: any) => {
-    setScreenings([...screenings, newScreening]);
-  };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedMovie(null);
   };
 
-  const handleModifyMovie = (updatedMovie: MovieAttributes) => {
-    setMovies(
-      movies.map((movie) =>
-        movie.id === updatedMovie.id ? updatedMovie : movie
-      )
-    );
-  };
-
-  const handleArchiveMovie = () => {
-    if (selectedMovie) {
-      setMovies(movies.filter((movie) => movie.id !== selectedMovie.id));
-      handleCloseModal();
-    }
-  };
-
   return (
-    <div className="min-h-screen p-6 flex flex-col items-center">
+    <div className="min-h-screen p-6 flex flex-col items-center bg-gray-100">
       <h1 className="text-3xl font-bold mb-6 text-gray-900">
-        Gestion des Séances de Films
+        Gestion des Films et des Salles
       </h1>
 
-      {loading && <p>Chargement des films...</p>}
+      {showToast && (
+        <div className="fixed top-4 right-4 flex w-96 shadow-lg rounded-lg">
+          <div className="bg-green-600 py-4 px-6 rounded-l-lg flex items-center">
+            <AiOutlineCheck className="text-white" size={20} />
+          </div>
+          <div className="px-4 py-6 bg-white rounded-r-lg flex justify-between items-center w-full border border-l-transparent border-gray-200">
+            <div>{toastMessage}</div>
+            <button onClick={() => setShowToast(false)}>
+              <AiOutlineClose className="text-gray-700" size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+      {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">Erreur : {error}</p>}
 
       {!loading && !error && (
@@ -168,34 +304,69 @@ export default function AdminDashboard() {
           {/* Colonne 1: Calendrier et Liste des Films */}
           <div className="lg:col-span-2 space-y-6 relative">
             <h2 className="text-xl pl-6 font-medium text-gray-900 py-2">
-              Calendrier des Séances
+              Calendrier des Films
             </h2>
             <div className="bg-orange-500 absolute top-9 left-2 w-[calc(20%)] h-2"></div>
             <MovieCalendar events={events} onSelectEvent={handleSelectEvent} />
 
-            <div className="rounded-lg bg-gray-300 relative">
+            <div className="rounded-lg relative">
               <h2 className="text-xl pl-6 text-gray-900 font-medium py-2">
                 Liste des Films
               </h2>
               <div className="bg-orange-500 absolute top-9 left-2 w-[calc(20%)] h-2"></div>
-              <MovieCard movies={movies} />
+              <div className="movie-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                {movies.map((movie) => {
+                  const createdAtString = movie.created_at
+                    ? new Date(movie.created_at).toISOString()
+                    : "";
+                  const updatedAtString = movie.updated_at
+                    ? new Date(movie.updated_at).toISOString()
+                    : "";
+
+                  return (
+                    <Card
+                      key={movie.id}
+                      id={movie.id}
+                      title={movie.title}
+                      description={movie.description}
+                      type={assignRandomType(movie.id)}
+                      release_date={
+                        movie.release_date
+                          ? new Date(movie.release_date).toISOString()
+                          : undefined
+                      }
+                      duration={movie.duration}
+                      created_at={createdAtString}
+                      updated_at={updatedAtString}
+                      isAdmin={() => true}
+                      onModify={handleModifyMovie}
+                      onDelete={(movieId) =>
+                        setMovies(
+                          movies.filter((movie) => movie.id !== movieId)
+                        )
+                      }
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           {/* Colonne 2: Formulaires à droite */}
           <div className="space-y-6">
             <div className="rounded-lg shadow-md">
-              <AddMovieCard onAddMovie={handleAddMovie} halls={[]} />
+              <AddMovieCard onAddMovie={handleAddMovie} />
             </div>
             <div className="rounded-lg shadow-md">
-              <AddHallCard onAddHall={handleAddHall} />
-            </div>
-            <div className="rounded-lg shadow-md">
-              <ScheduleScreeningForm
-                movies={movies}
-                halls={halls}
-                onSchedule={handleScheduleScreening}
-              />
+              <AddHallCard onAddHall={handleAddHall} halls={halls} />
+              <div className="rounded-lg shadow-md">
+                <ScheduleScreeningForm
+                  movies={movies}
+                  halls={halls}
+                  existingScreenings={screenings}
+                  onSchedule={handleSchedule}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -208,8 +379,9 @@ export default function AdminDashboard() {
           onClose={handleCloseModal}
           movie={selectedMovie}
           onModify={handleModifyMovie}
-          onArchive={handleArchiveMovie}
-          availableHalls={[]}
+          onDelete={handleDeleteMovie}
+          availableHalls={halls}
+          isAdmin={() => true}
         />
       )}
     </div>

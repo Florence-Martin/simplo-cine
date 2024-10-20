@@ -1,13 +1,16 @@
 import Movie from '../models/movie';
 import MovieCreationAttributes from "../models/movie";
 import MovieAttributes from "../models/movie";
+
+
+
 // Créer un film
 export const createMovie = async (data: MovieCreationAttributes): Promise<MovieAttributes> => {
   try {
     const movie = await Movie.create(data);
     return movie;
-  } catch (err:any) {
-    throw new Error(`Error creating movie: ${err.message}`);
+  } catch (err) {
+    throw new Error(`Error creating movie: ${(err as Error).message}`);
   }
 };
 
@@ -15,8 +18,8 @@ export const createMovie = async (data: MovieCreationAttributes): Promise<MovieA
 export const getMovies = async (): Promise<MovieAttributes[]> => {
   try {
     return await Movie.findAll();
-  } catch (err:any) {
-    throw new Error(`Error fetching movies: ${err.message}`);
+  } catch (err) {
+    throw new Error(`Error fetching movies: ${(err as Error).message}`);
   }
 };
 
@@ -24,8 +27,8 @@ export const getMovies = async (): Promise<MovieAttributes[]> => {
 export const getMovieById = async (id: number): Promise<MovieAttributes | null> => {
   try {
     return await Movie.findByPk(id);
-  } catch (err:any) {
-    throw new Error(`Error fetching movie with ID ${id}: ${err.message}`);
+  } catch (err) {
+    throw new Error(`Error fetching movie with ID ${id}: ${(err as Error).message}`);
   }
 };
 
@@ -37,8 +40,8 @@ export const updateMovie = async (id: number, data: Partial<MovieAttributes>): P
       return await Movie.findByPk(id);
     }
     return null;
-  } catch (err:any) {
-    throw new Error(`Error updating movie with ID ${id}: ${err.message}`);
+  } catch (err) {
+    throw new Error(`Error updating movie with ID ${id}: ${(err as Error).message}`);
   }
 };
 
@@ -47,7 +50,7 @@ export const deleteMovie = async (id: number): Promise<boolean> => {
   try {
     const deleted = await Movie.destroy({ where: { id } });
     return deleted > 0;
-  } catch (err:any) {
-    throw new Error(`Error deleting movie with ID ${id}: ${err.message}`);
+  } catch (err) {
+    throw new Error(`Error deleting movie with ID ${id}: ${(err as Error).message}`);
   }
 };

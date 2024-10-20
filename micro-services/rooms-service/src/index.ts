@@ -27,6 +27,10 @@ app.get('/api-rooms-swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
+// Endpoint health
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.use('/api/rooms', roomRoutes);
 

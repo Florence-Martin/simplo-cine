@@ -4,18 +4,18 @@ import { UserService } from "../services/userService";
 const userService = new UserService();
 
 export class UserController {
-  // Récupérer tous les utilisateurs
+  // Récupérer tous les utilisateurs avec leur rôle
   public async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
       const users = await userService.getAllUsers();
       res.status(200).json(users);
     } catch (error) {
-      const err = error as Error; // Assertion explicite
+      const err = error as Error;
       res.status(500).json({ message: err.message });
     }
   }
 
-  // Récupérer un utilisateur par ID
+  // Récupérer un utilisateur par ID avec son rôle
   public async getUserById(req: Request, res: Response): Promise<void> {
     try {
       const user = await userService.getUserById(req.params.id);
@@ -30,7 +30,7 @@ export class UserController {
     }
   }
 
-  // Créer un nouvel utilisateur
+  // Créer un nouvel utilisateur avec rôle
   public async createUser(req: Request, res: Response): Promise<void> {
     try {
       const newUser = await userService.createUser(req.body);

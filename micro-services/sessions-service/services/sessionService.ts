@@ -1,14 +1,17 @@
 import Session from '../models/session';
 import SessionCreationAttributes from "../models/session";
 import SessionAttributes from "../models/session";
+import { Op } from 'sequelize';
+
 // Fonction de gestion des erreurs
 const handleError = (operation: string, err: unknown) => {
     if (err instanceof Error) {
-        throw new Error(`${operation}: ${err.message}`);
+        console.error(`${operation}: ${err.message}`);
     } else {
-        throw new Error(`Unknown error during ${operation}`);
+        console.error(`Unknown error during ${operation}`);
     }
 };
+
 
 // Créer une session
 export const createSession = async (data: SessionCreationAttributes): Promise<SessionAttributes | undefined> => {
@@ -21,13 +24,13 @@ export const createSession = async (data: SessionCreationAttributes): Promise<Se
     }
 };
 
-// Obtenir toutes les sessions avec les relations 'movie' et 'room'
+// Obtenir toutes les sessions
 export const getSessions = async (): Promise<SessionAttributes[]> => {
     try {
         return await Session.findAll();
     } catch (err) {
         handleError('fetching sessions', err);
-        return []; // Return an empty array in case of an error
+        return []; // Retourne un tableau vide en cas d'erreur
     }
 };
 
@@ -37,7 +40,7 @@ export const getSessionById = async (id: number): Promise<SessionAttributes | nu
         return await Session.findByPk(id); // Inclure les relations si nécessaire
     } catch (err) {
         handleError('fetching session by ID', err);
-        return null; // Ensure a return value in case of an error
+        return null; // Assurer une valeur de retour en cas d'erreur
     }
 };
 
@@ -52,7 +55,7 @@ export const updateSession = async (id: number, data: Partial<SessionCreationAtt
         return session;
     } catch (err) {
         handleError('updating session', err);
-        return null; // Ensure a return value in case of an error
+        return null; // Assurer une valeur de retour en cas d'erreur
     }
 };
 
@@ -67,6 +70,32 @@ export const deleteSession = async (id: number): Promise<boolean> => {
         return true;
     } catch (err) {
         handleError('deleting session', err);
-        return false; // Ensure a return value in case of an error
+        return false; // Assurer une valeur de retour en cas d'erreur
+    }
+};
+
+
+// Obtenir les sessions par date
+export const getSessionsByDate = async (date: string): Promise<SessionAttributes[]> => {
+    try {
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // Récupérer les sessions par date
+        const sessions = await Session.findAll({
+            where: {
+                date: {
+                    [Op.between]: [startOfDay, endOfDay]
+                }
+            }
+        });
+
+        return sessions; // Retourner uniquement les sessions
+    } catch (err) {
+        console.error('Error fetching sessions by date:', err);
+        return []; // Retourner un tableau vide en cas d'erreur
     }
 };

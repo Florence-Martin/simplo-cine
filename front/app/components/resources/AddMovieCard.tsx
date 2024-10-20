@@ -1,31 +1,26 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 import {
   FaAlignLeft,
   FaCalendarAlt,
-  FaChair,
   FaHeading,
   FaHourglassStart,
   FaImage,
   FaPlus,
 } from "react-icons/fa";
 
-import { MovieAttributes, HallAttributes } from "../../types/types";
+import { MovieAttributes } from "../../types/types";
 
 interface AddMovieCardProps {
   onAddMovie: (newMovie: MovieAttributes) => void;
-  halls: HallAttributes[];
 }
 
-export const AddMovieCard: React.FC<AddMovieCardProps> = ({
-  onAddMovie,
-  halls,
-}) => {
+export const AddMovieCard: React.FC<AddMovieCardProps> = ({ onAddMovie }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [releaseDate, setReleaseDate] = useState<Date | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [poster, setPoster] = useState<File | null>(null);
-  const [selectedHallId, setSelectedHallId] = useState<number | null>(null);
 
   const handleAdd = () => {
     if (title && releaseDate && duration) {
@@ -44,7 +39,7 @@ export const AddMovieCard: React.FC<AddMovieCardProps> = ({
       setDescription("");
       setReleaseDate(null);
       setDuration(null);
-      setPoster(null);
+      setPoster(null); // Réinitialiser le formulaire
     } else {
       alert("Veuillez remplir tous les champs requis.");
     }
@@ -87,6 +82,7 @@ export const AddMovieCard: React.FC<AddMovieCardProps> = ({
           placeholder="Description du film"
         ></textarea>
       </div>
+
       <div className="mb-4">
         <label className="text-gray-900 flex items-center">
           <FaCalendarAlt className="text-yellow-500 mr-2" /> Date de sortie
@@ -109,23 +105,6 @@ export const AddMovieCard: React.FC<AddMovieCardProps> = ({
           onChange={(e) => setDuration(Number(e.target.value))}
           placeholder="Durée en minutes"
         />
-      </div>
-      <div className="mb-4">
-        <label className="text-gray-900 flex items-center">
-          <FaChair className="text-purple-700 mr-2" /> Salle de projection
-        </label>
-        <select
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-          value={selectedHallId || ""}
-          onChange={(e) => setSelectedHallId(Number(e.target.value))}
-        >
-          <option value="">Sélectionnez une salle</option>
-          {halls.map((hall) => (
-            <option key={hall.id} value={hall.id}>
-              {hall.name} (Capacité: {hall.capacity})
-            </option>
-          ))}
-        </select>
       </div>
       <div className="mb-4">
         <label className="text-gray-900 flex items-center">

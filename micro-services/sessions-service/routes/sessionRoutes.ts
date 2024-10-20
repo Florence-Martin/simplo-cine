@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createSession, getSessions, getSessionById, updateSession, deleteSession } from '../controllers/sessionController';
+import { createSession, getSessions, getSessionById, updateSession, deleteSession, getSessionsByDate } from '../controllers/sessionController';
 
 const router = Router();
 
@@ -150,5 +150,44 @@ router.put('/:id', updateSession);
  *         description: Session non trouvée
  */
 router.delete('/:id', deleteSession);
+
+/**
+ * @swagger
+ * /sessions/date/:date:
+ *   get:
+ *     summary: Récupère les sessions par date
+ *     tags: [Sessions]
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         description: Date des sessions à récupérer (format YYYY-MM-DD)
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: Liste des sessions pour la date spécifiée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   movieId:
+ *                     type: integer
+ *                   startTime:
+ *                     type: string
+ *                     format: date-time
+ *                   room:
+ *                     type: string
+ *       404:
+ *         description: Aucune session trouvée pour la date spécifiée
+ */
+
+router.get('/date/:date', getSessionsByDate);
 
 export default router;

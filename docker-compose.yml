@@ -1,47 +1,35 @@
 services:
-  # Service Nginx
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./api/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - front
-      - movies-service
-      - notifications-service
-      - rooms-service
-      - search-service
-      - sessions-service
-      - users-service
-    networks:
-      - simplo-cine-network
-
   # Service Frontend (Next.js)
   front:
-    build: ./front
+    image: scalp852/front-app:1.0.0
     ports:
       - "3000:3000"
-    volumes:
-      - ./front:/app
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Service de gestion des films
   movies-service:
-    build: ./micro-services/movies-service
+    image: scalp852/movies-service:1.0.0
     ports:
       - "3001:3000"
     depends_on:
       - postgres_movies
     environment:
-      - DATABASE_URL=postgres://user:password@postgres:5432/movies_db
+      - DATABASE_URL=postgres://user:password@postgres_movies:5432/movies_db
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   postgres_movies:
-    ports:
-      - "5432:5432"
     image: postgres:13
     environment:
       POSTGRES_USER: user
@@ -51,34 +39,46 @@ services:
       - postgres_data_movie:/var/lib/postgresql/data
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d movies_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Service de notifications
   notifications-service:
-    build: ./micro-services/notifications-service
+    image: scalp852/notifications-service:1.0.0
     ports:
       - "3003:3000"
     environment:
       - NODE_ENV=production
-      # Ajoutez ici les variables d'environnement nécessaires sans les secrets pour l'instant
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://user:password@postgres_notifications:5432/notifications_db
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Service de gestion des salles
   rooms-service:
-    build: ./micro-services/rooms-service
+    image: scalp852/rooms-service:1.0.0
     ports:
       - "3004:3000"
+    depends_on:
+      - postgres_rooms
     environment:
-      - NODE_ENV=production
-      # Ajoutez ici les variables d'environnement nécessaires sans les secrets pour l'instant
-      - DATABASE_URL=postgres://user:password@postgres-db:5432/rooms_db
+      - DATABASE_URL=postgres://user:password@postgres_rooms:5432/rooms_db
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   postgres_rooms:
-    ports:
-      - "5435:5432"
     image: postgres:13
     environment:
       POSTGRES_USER: user
@@ -88,34 +88,63 @@ services:
       - postgres_data_room:/var/lib/postgresql/data
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d rooms_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Service de recherche
   search-service:
-    build: ./micro-services/search-service
+    image: scalp852/search-service:1.0.0
     ports:
       - "3005:3000"
+    depends_on:
+      - postgres_search
     environment:
-      - NODE_ENV=production
-      # Ajoutez ici les variables d'environnement nécessaires sans les secrets pour l'instant
-      - DATABASE_URL=postgres://user:password@postgres-db:5432/search_db
+      - DATABASE_URL=postgres://user:password@postgres_search:5432/search_db
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  postgres_search:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: search_db
+    volumes:
+      - postgres_data_search:/var/lib/postgresql/data
+    networks:
+      - simplo-cine-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d search_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Service de gestion des sessions
   sessions-service:
-    build: ./micro-services/sessions-service
+    image: scalp852/sessions-service:1.0.0
     ports:
       - "3006:3000"
+    depends_on:
+      - postgres_sessions
     environment:
-      - NODE_ENV=production
-      # Ajoutez ici les variables d'environnement nécessaires sans les secrets pour l'instant
-      - DATABASE_URL=postgres://user:password@postgres-db:5432/sessions_db
+      - DATABASE_URL=postgres://user:password@postgres_sessions:5432/sessions_db
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   postgres_sessions:
-    ports:
-      - "5434:5432"
     image: postgres:13
     environment:
       POSTGRES_USER: user
@@ -125,21 +154,30 @@ services:
       - postgres_data_session:/var/lib/postgresql/data
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d sessions_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Service de gestion des utilisateurs
   users-service:
-    build: ./micro-services/users-service
+    image: scalp852/users-service:1.0.0
     ports:
       - "3007:3000"
+    depends_on:
+      - postgres_users
     environment:
-      - NODE_ENV=production
       - DATABASE_URL=postgres://user:password@postgres_users:5432/users_db
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   postgres_users:
-    ports:
-      - "5433:5432"
     image: postgres:13
     environment:
       POSTGRES_USER: user
@@ -149,13 +187,20 @@ services:
       - postgres_data_user:/var/lib/postgresql/data
     networks:
       - simplo-cine-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d users_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    image: scalp852/prometheus-service:1.0.0 
     ports:
       - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      # - ./monitoring/prometheus/data:/prometheus
+      # - ./monitoring/prometheus/logs:/var/log/prometheus
     networks:
       - simplo-cine-network
 
@@ -163,15 +208,28 @@ services:
     image: grafana/grafana
     ports:
       - "3010:3000"
+    # volumes:
+    #   - ./monitoring/grafana/data:/var/lib/grafana
+    #   - ./monitoring/grafana/logs:/var/log/grafana
     networks:
       - simplo-cine-network
+      
+# Service Nginx      
+  nginx:
+    image: scalp852/nginx:1.0.0
+    ports:
+      - "8080:8080"
+    networks:
+      - simplo-cine-network
+    restart: always
 
 volumes:
-  # Réseau personnalisé pour simplo-cine
   postgres_data_movie:
-  postgres_data_user:
-  postgres_data_session:
   postgres_data_room:
+  postgres_data_search:
+  postgres_data_session:
+  postgres_data_user:
+
 networks:
   simplo-cine-network:
     driver: bridge

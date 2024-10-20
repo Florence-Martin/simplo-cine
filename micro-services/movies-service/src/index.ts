@@ -27,6 +27,10 @@ app.get('/api-movies-swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
+// Endpoints health
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.use('/api/movies', movieRoutes);
 

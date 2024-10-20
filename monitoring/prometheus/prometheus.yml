@@ -2,7 +2,38 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'metrics_api_movie'
+  # Job pour le service de gestion des films
+  - job_name: 'metrics_movies_service'
     metrics_path: '/metrics'
     static_configs:
       - targets: ['simplo-cine_movies-service_1:3000']
+
+  # Job pour le service de notifications
+  - job_name: 'metrics_notifications_service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['simplo-cine_notifications-service_1:3000']
+
+  # Job pour le service de gestion des salles
+  - job_name: 'metrics_rooms_service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['simplo-cine_rooms-service_1:3000']
+
+  # Job pour le service de recherche
+  - job_name: 'metrics_search_service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['simplo-cine_search-service_1:3000']
+
+  # Job pour le service de gestion des sessions
+  - job_name: 'metrics_sessions_service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['simplo-cine_sessions-service_1:3000']
+
+  # Job pour le service de gestion des utilisateurs
+  - job_name: 'metrics_users_service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['simplo-cine_users-service_1:3000']

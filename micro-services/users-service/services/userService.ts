@@ -1,11 +1,14 @@
 import Role from "../models/role";
 import User from "../models/user";
+import { hashPassword } from "../utils/authUtils";
 
 export class UserService {
-  // Récupérer tous les utilisateurs
+  // Récupérer tous les utilisateurs avec leurs rôles
   public async getAllUsers() {
     try {
-      return await User.findAll();
+      return await User.findAll({
+        include: [Role]  // Inclure le rôle associé à chaque utilisateur
+      });
     } catch (error) {
       throw new Error(
         "Erreur lors de la récupération des utilisateurs : " +
@@ -14,10 +17,12 @@ export class UserService {
     }
   }
 
-  // Récupérer un utilisateur par ID
+  // Récupérer un utilisateur par ID avec son rôle
   public async getUserById(id: string) {
     try {
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, {
+        include: [Role]  // Inclure le rôle dans la réponse
+      });
       if (!user) {
         throw new Error("Utilisateur non trouvé");
       }
@@ -30,13 +35,20 @@ export class UserService {
     }
   }
 
-  // Créer un nouvel utilisateur
+  // Créer un nouvel utilisateur avec un rôle
   public async createUser(data: {
     username: string;
     email: string;
     password: string;
-    role: Role;
+    roleId: any;  // Utiliser roleId comme clé étrangère
   }) {
+    const adminRole = await Role.findOne({ where: { role_name: 'Admin' } });
+    if (!adminRole) {
+      
+    }
+    data.roleId= adminRole?.id
+    const hashedPassword = await hashPassword(data.password); // Hachage du mot de passe
+    data.password = hashedPassword;
     try {
       const newUser = await User.create(data);
       return newUser;
@@ -55,7 +67,7 @@ export class UserService {
       username?: string;
       email?: string;
       password?: string;
-      role?: Role;
+      roleId?: number;  // Permet la mise à jour du rôle
     }
   ) {
     try {
@@ -63,6 +75,12 @@ export class UserService {
       if (!user) {
         throw new Error("Utilisateur non trouvé");
       }
+
+      // Hacher le mot de passe si fourni dans la mise à jour
+      if (data.password) {
+        data.password = await hashPassword(data.password);
+      }
+
       await user.update(data);
       return user;
     } catch (error) {

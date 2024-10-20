@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 import moment from "moment";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Calendar as BigCalendar,
   momentLocalizer,
